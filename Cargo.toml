@@ -1,0 +1,15 @@
+[package]
+name = "diceberg"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1.45.1", features = ["full"] }
+iceberg = { version = "0.4.0", features = ["storage-all"] }
+iceberg-catalog-glue = { version = "0.4.0" }
+futures = "0.3.31"
+typed-builder = "0.21.0"
+reqwest = "0.12.19"
+serde = { version = "1.0.219", features = ["derive"] }
+anyhow = "1.0.98"
+chrono = { version = "0.4.39", features = ["serde"] }
