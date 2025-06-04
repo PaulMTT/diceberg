@@ -55,6 +55,8 @@ OR
 
 You can query via the icerberg location and schema table way: [iceberg.rs](src/bin/iceberg.rs)
 
+Getting the schema of an asset: [schema.rs](src/bin/schema.rs)
+
 ## Upcoming
 
 Work on better table/sql api integration, along with making this a CLI app.
