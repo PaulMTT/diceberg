@@ -1,4 +1,4 @@
-use crate::api::iceberg::client::DicebergClient;
+use crate::api::client::base::DicebergClient;
 use anyhow::{Context, Result};
 use iceberg::table::Table;
 use iceberg::{Catalog, TableIdent};

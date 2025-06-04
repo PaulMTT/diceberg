@@ -1,4 +1,4 @@
-use crate::api::management::model::Inventory;
+use crate::api::management::inventory::Inventory;
 use anyhow::{Context, Result};
 use reqwest::Client;
 use std::env;

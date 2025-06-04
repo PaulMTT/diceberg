@@ -1,8 +1,8 @@
-use crate::api::iceberg::asset::{CoreAsset, IcebergAsset};
-use crate::api::iceberg::core::DicebergClientCoreScoped;
-use crate::api::iceberg::iceberg::DicebergClientIcebergScoped;
-use crate::api::iceberg::traits::CatalogSource;
+use crate::api::client::asset::{CoreAsset, IcebergAsset};
+use crate::api::client::core_scope::DicebergClientCoreScoped;
+use crate::api::client::iceberg_scope::DicebergClientIcebergScoped;
 use crate::api::management::client::DiciManagementClient;
+use crate::api::traits::CatalogSource;
 use anyhow::{Context, Result};
 use iceberg_catalog_glue::{GlueCatalog, GlueCatalogConfig};
 use std::env;

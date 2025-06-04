@@ -1,7 +1,7 @@
-use crate::api::iceberg::asset::CoreAsset;
-use crate::api::iceberg::client::DicebergClient;
-use crate::api::iceberg::traits::{ClientSource, TableIdentity};
+use crate::api::client::asset::CoreAsset;
+use crate::api::client::base::DicebergClient;
 use crate::api::management::client::DiciManagementClient;
+use crate::api::traits::{ClientSource, TableIdentity};
 use anyhow::{Context, Result};
 use iceberg::TableIdent;
 use typed_builder::TypedBuilder;

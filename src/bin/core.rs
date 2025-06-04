@@ -1,8 +1,8 @@
 use anyhow::Result;
-use diceberg::api::iceberg::asset::CoreAsset;
-use diceberg::api::iceberg::client::DicebergClient;
-use diceberg::api::iceberg::core::DicebergClientCoreScoped;
-use diceberg::api::iceberg::traits::TableSource;
+use diceberg::api::client::asset::CoreAsset;
+use diceberg::api::client::base::DicebergClient;
+use diceberg::api::client::core_scope::DicebergClientCoreScoped;
+use diceberg::api::traits::TableSource;
 use futures::TryStreamExt;
 
 #[tokio::main]
