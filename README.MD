@@ -26,7 +26,7 @@ The management address is only needed if querying via a core fxf, this also requ
 
 ## Demo
 
-For now we have, in staging, the registration:
+For now we have, in staging, the inventory:
 
 ```
 {
