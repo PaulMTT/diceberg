@@ -7,14 +7,14 @@ use iceberg::TableIdent;
 use typed_builder::TypedBuilder;
 
 #[derive(TypedBuilder, Clone)]
-pub struct DicebergClientCoreScoped {
-    pub client: DicebergClient,
-    pub asset: CoreAsset,
+pub struct DicebergCoreAsset {
+    client: DicebergClient,
+    asset: CoreAsset,
     #[builder(default)]
-    pub management_client: DiciManagementClient,
+    management_client: DiciManagementClient,
 }
 
-impl TableIdentity for DicebergClientCoreScoped {
+impl TableIdentity for DicebergCoreAsset {
     async fn table_ident(&self) -> Result<TableIdent> {
         let inventory = self
             .management_client
@@ -30,7 +30,7 @@ impl TableIdentity for DicebergClientCoreScoped {
     }
 }
 
-impl ClientSource for DicebergClientCoreScoped {
+impl ClientSource for DicebergCoreAsset {
     fn client(&self) -> &DicebergClient {
         &self.client
     }

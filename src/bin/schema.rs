@@ -1,21 +1,21 @@
 use anyhow::Result;
 use diceberg::api::client::asset::{CoreAsset, IcebergAsset};
 use diceberg::api::client::base::DicebergClient;
-use diceberg::api::client::core_scope::DicebergClientCoreScoped;
-use diceberg::api::client::iceberg_scope::DicebergClientIcebergScoped;
+use diceberg::api::client::core_scope::DicebergCoreAsset;
+use diceberg::api::client::iceberg_scope::DicebergIcebergAsset;
 use diceberg::api::traits::TableSource;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client: DicebergClientCoreScoped =
+    let asset: DicebergCoreAsset =
         DicebergClient::default().core(CoreAsset::builder().fxf("yfc6-7rgw").build());
 
-    let fields = client.schema().await?;
+    let fields = asset.schema().await?;
     fields.iter().for_each(|f| {
         println!("{:?}", f)
     });
 
-    let client: DicebergClientIcebergScoped =
+    let client: DicebergIcebergAsset =
         DicebergClient::default().iceberg(
             IcebergAsset::builder()
                 .location("_ac642f8374a4a7c17e855f828c41cf48")

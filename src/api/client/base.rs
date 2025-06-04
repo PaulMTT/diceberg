@@ -1,6 +1,6 @@
 use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::client::core_scope::DicebergClientCoreScoped;
-use crate::api::client::iceberg_scope::DicebergClientIcebergScoped;
+use crate::api::client::core_scope::DicebergCoreAsset;
+use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::management::client::DiciManagementClient;
 use crate::api::traits::CatalogSource;
 use anyhow::{Context, Result};
@@ -31,8 +31,8 @@ impl Default for DicebergClient {
 }
 
 impl DicebergClient {
-    pub fn core(self, asset: CoreAsset) -> DicebergClientCoreScoped {
-        DicebergClientCoreScoped::builder()
+    pub fn core(self, asset: CoreAsset) -> DicebergCoreAsset {
+        DicebergCoreAsset::builder()
             .client(self)
             .asset(asset)
             .build()
@@ -42,16 +42,16 @@ impl DicebergClient {
         self,
         asset: CoreAsset,
         dici_management_client: DiciManagementClient,
-    ) -> DicebergClientCoreScoped {
-        DicebergClientCoreScoped::builder()
+    ) -> DicebergCoreAsset {
+        DicebergCoreAsset::builder()
             .client(self)
             .asset(asset)
             .management_client(dici_management_client)
             .build()
     }
 
-    pub fn iceberg(self, asset: IcebergAsset) -> DicebergClientIcebergScoped {
-        DicebergClientIcebergScoped::builder()
+    pub fn iceberg(self, asset: IcebergAsset) -> DicebergIcebergAsset {
+        DicebergIcebergAsset::builder()
             .client(self)
             .asset(asset)
             .build()
