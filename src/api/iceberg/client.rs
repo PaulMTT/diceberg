@@ -33,7 +33,7 @@ impl Default for DicebergClient {
 impl DicebergClient {
     pub fn core(self, asset: CoreAsset) -> DicebergClientCoreScoped {
         DicebergClientCoreScoped::builder()
-            .client(self.clone())
+            .client(self)
             .asset(asset)
             .build()
     }
@@ -44,7 +44,7 @@ impl DicebergClient {
         dici_management_client: DiciManagementClient,
     ) -> DicebergClientCoreScoped {
         DicebergClientCoreScoped::builder()
-            .client(self.clone())
+            .client(self)
             .asset(asset)
             .management_client(dici_management_client)
             .build()
@@ -52,7 +52,7 @@ impl DicebergClient {
 
     pub fn iceberg(self, asset: IcebergAsset) -> DicebergClientIcebergScoped {
         DicebergClientIcebergScoped::builder()
-            .client(self.clone())
+            .client(self)
             .asset(asset)
             .build()
     }
