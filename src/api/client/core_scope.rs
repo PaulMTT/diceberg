@@ -21,11 +21,12 @@ impl TableIdentity for DicebergClientCoreScoped {
             .fetch_inventory_by_fxf(self.asset.fxf.clone())
             .await
             .context("Could not fetch inventory")?;
+
         TableIdent::from_strs([
             inventory.id.iceberg_location.iceberg_location,
             inventory.id.schema_table.schema_table,
         ])
-            .context("Failed to parse table ident from core asset")
+        .context("Failed to parse table ident from core asset")
     }
 }
 
