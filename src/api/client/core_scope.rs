@@ -26,7 +26,7 @@ impl TableIdentity for DicebergClientCoreScoped {
             inventory.id.iceberg_location.iceberg_location,
             inventory.id.schema_table.schema_table,
         ])
-        .context("Failed to parse table ident from core asset")
+            .context("Failed to parse table ident from core asset")
     }
 }
 

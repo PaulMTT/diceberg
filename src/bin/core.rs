@@ -12,6 +12,14 @@ async fn main() -> Result<()> {
 
     let table = client.table().await?;
 
+    let metadata = table.metadata();
+    let schema = metadata.current_schema();
+    let struct_type = schema.as_struct();
+    struct_type.fields().iter().for_each(|f| {
+        println!("{:?}", f)
+    });
+
+
     let stream = table
         .scan()
         .select(["vendorname"])
