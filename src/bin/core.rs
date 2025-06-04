@@ -7,18 +7,18 @@ use futures::TryStreamExt;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let client: DicebergCoreAsset =
+    let asset: DicebergCoreAsset =
         DicebergClient::default().core(CoreAsset::builder().fxf("yfc6-7rgw").build());
 
-    let table = client.table().await?;
+    let table = asset.table().await?;
 
     let metadata = table.metadata();
     let schema = metadata.current_schema();
     let struct_type = schema.as_struct();
-    struct_type.fields().iter().for_each(|f| {
-        println!("{:?}", f)
-    });
-
+    struct_type
+        .fields()
+        .iter()
+        .for_each(|f| println!("{:?}", f));
 
     let stream = table
         .scan()
