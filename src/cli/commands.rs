@@ -1,5 +1,6 @@
-use crate::cli::info::InfoKind;
-use crate::cli::sql::SqlAsset;
+use crate::cli::info::{handle_info, InfoKind};
+use crate::cli::sql::{handle_sql, SqlAsset};
+use anyhow::Result;
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
@@ -9,14 +10,20 @@ pub struct Cli {
     pub command: Commands,
 }
 
+impl Cli {
+    pub async fn run(self) -> Result<()> {
+        match self.command {
+            Commands::Info(kind) => handle_info(kind).await?,
+            Commands::Sql(asset) => handle_sql(asset).await?,
+        }
+        Ok(())
+    }
+}
+
 #[derive(Subcommand)]
 pub enum Commands {
-    Info {
-        #[clap(subcommand)]
-        kind: InfoKind,
-    },
-    Sql {
-        #[clap(subcommand)]
-        asset: SqlAsset,
-    },
+    #[clap(subcommand)]
+    Info(InfoKind),
+    #[clap(subcommand)]
+    Sql(SqlAsset),
 }
