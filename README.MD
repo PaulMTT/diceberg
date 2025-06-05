@@ -61,3 +61,7 @@ aws-vault exec staging -- cargo run --bin dici info schema core --fxf 'yfc6-7rgw
 aws-vault exec staging -- cargo run --bin dici info schema iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors'
 
 ```
+
+```shell
+aws-vault exec staging -- cargo run --bin dici --help
+```
