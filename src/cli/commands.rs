@@ -1,7 +1,7 @@
 use crate::cli::info::{handle_info, InfoKind};
 use crate::cli::sql::{handle_sql, SqlAsset};
 use anyhow::Result;
-use clap::{Args, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
