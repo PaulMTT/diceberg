@@ -68,15 +68,19 @@ where
         let ctx = SessionContext::new();
         let table_provider = Arc::new(IcebergTableProvider::try_new_from_table(table).await?);
         ctx.register_table(
-            self.table_reference().await.context("Failed to get table reference")?, 
-            table_provider)
-            .context("Failed to register table")?;
+            self.table_reference()
+                .await
+                .context("Failed to get table reference")?,
+            table_provider,
+        )
+        .context("Failed to register table")?;
         Ok(ctx)
     }
 
     async fn sql(&self, sql: &str) -> Result<DataFrame> {
         self.context()
-            .await.context("Failed to get session context")?
+            .await
+            .context("Failed to get session context")?
             .sql(sql)
             .await
             .context("Failed to execute query")

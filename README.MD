@@ -48,17 +48,3 @@ For now we have, in staging, the inventory:
   "updatedAt": "2025-05-29T21:34:11.171485Z"
 }
 ```
-
-You can query via a fxf the "core" way: [core.rs](src/bin/core.rs)
-
-OR
-
-You can query via the icerberg location and schema table way: [iceberg.rs](src/bin/iceberg.rs)
-
-Getting the schema of an asset: [schema.rs](src/bin/schema.rs)
-
-Executing sql queries: [sql.rs](src/bin/sql.rs)
-
-## Upcoming
-
-Work on better table/sql api integration, along with making this a CLI app.
