@@ -1,34 +1,46 @@
 use crate::api::client::base::DicebergClient;
 use anyhow::{Context, Result};
+use datafusion::common::TableReference;
+use datafusion::dataframe::DataFrame;
+use datafusion::prelude::SessionContext;
 use iceberg::spec::NestedFieldRef;
 use iceberg::table::Table;
 use iceberg::{Catalog, TableIdent};
 use iceberg_catalog_glue::GlueCatalog;
+use iceberg_datafusion::IcebergTableProvider;
+use std::sync::Arc;
 
 pub trait ClientSource {
     fn client(&self) -> &DicebergClient;
 }
 
 pub trait CatalogSource {
-    fn catalog(&self) -> impl Future<Output=Result<GlueCatalog>>;
+    fn catalog(&self) -> impl Future<Output = Result<GlueCatalog>>;
 }
 
-pub trait TableIdentity {
-    fn table_ident(&self) -> impl Future<Output=Result<TableIdent>>;
+pub trait TableIdentitySource {
+    fn table_ident(&self) -> impl Future<Output = Result<TableIdent>>;
 }
 
-pub trait TableSource: TableIdentity + CatalogSource {
-    fn table(&self) -> impl Future<Output=Result<Table>>;
-    fn schema(&self) -> impl Future<Output=Result<Vec<NestedFieldRef>>>;
+pub trait TableReferenceSource {
+    fn table_reference(&self) -> impl Future<Output = Result<TableReference>>;
+}
+
+pub trait TableSource: TableIdentitySource + CatalogSource {
+    fn table(&self) -> impl Future<Output = Result<Table>>;
+    fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
+
+    fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;
 }
 
 impl<T> TableSource for T
 where
-    T: TableIdentity + CatalogSource,
+    T: TableIdentitySource + CatalogSource + TableReferenceSource,
 {
     async fn table(&self) -> Result<Table> {
         self.catalog()
-            .await.context("Failed to construct catalog")?
+            .await
+            .context("Failed to construct catalog")?
             .load_table(
                 &self
                     .table_ident()
@@ -40,17 +52,24 @@ where
     }
 
     async fn schema(&self) -> Result<Vec<NestedFieldRef>> {
-        Ok(
-            self.table().await?
-                .metadata()
-                .current_schema()
-                .as_struct()
-                .fields()
-                .to_vec()
-        )
+        Ok(self
+            .table()
+            .await?
+            .metadata()
+            .current_schema()
+            .as_struct()
+            .fields()
+            .to_vec())
+    }
+
+    async fn sql(&self, sql: &str) -> Result<DataFrame> {
+        let table: Table = self.table().await?;
+        let ctx = SessionContext::new();
+        let table_provider = Arc::new(IcebergTableProvider::try_new_from_table(table).await?);
+        ctx.register_table(self.table_reference().await?, table_provider)?;
+        ctx.sql(sql).await.context("Failed to execute query")
     }
 }
-
 
 impl<T> CatalogSource for T
 where

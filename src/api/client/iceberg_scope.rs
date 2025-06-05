@@ -1,7 +1,8 @@
 use crate::api::client::asset::IcebergAsset;
 use crate::api::client::base::DicebergClient;
-use crate::api::traits::{ClientSource, TableIdentity};
+use crate::api::traits::{ClientSource, TableIdentitySource, TableReferenceSource};
 use anyhow::{Context, Result};
+use datafusion::common::TableReference;
 use iceberg::TableIdent;
 use typed_builder::TypedBuilder;
 
@@ -11,7 +12,7 @@ pub struct DicebergIcebergAsset {
     asset: IcebergAsset,
 }
 
-impl TableIdentity for DicebergIcebergAsset {
+impl TableIdentitySource for DicebergIcebergAsset {
     async fn table_ident(&self) -> Result<TableIdent> {
         TableIdent::from_strs([&self.asset.location, &self.asset.schema_table])
             .context("Failed to parse table ident from iceberg asset")
@@ -21,5 +22,13 @@ impl TableIdentity for DicebergIcebergAsset {
 impl ClientSource for DicebergIcebergAsset {
     fn client(&self) -> &DicebergClient {
         &self.client
+    }
+}
+
+impl TableReferenceSource for DicebergIcebergAsset {
+    async fn table_reference(&self) -> Result<TableReference> {
+        Ok(TableReference::Bare {
+            table: self.asset.schema_table.clone().into(),
+        })
     }
 }

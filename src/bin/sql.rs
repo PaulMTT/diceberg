@@ -7,12 +7,6 @@ use diceberg::api::traits::TableSource;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let asset: DicebergCoreAsset =
-        DicebergClient::default().core(CoreAsset::builder().fxf("yfc6-7rgw").build());
-
-    let fields = asset.schema().await?;
-    fields.iter().for_each(|f| println!("{:?}", f));
-
     let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
         IcebergAsset::builder()
             .location("_ac642f8374a4a7c17e855f828c41cf48")
@@ -20,7 +14,24 @@ async fn main() -> Result<()> {
             .build(),
     );
 
-    let fields = asset.schema().await?;
-    fields.iter().for_each(|f| println!("{:?}", f));
+    let records = asset
+        .sql("select count(vendorname) from dbo_vendors")
+        .await?
+        .explain(false, false)?
+        .collect()
+        .await?;
+    assert_eq!(1, records.len());
+
+    let asset: DicebergCoreAsset =
+        DicebergClient::default().core(CoreAsset::builder().fxf("yfc6-7rgw").build());
+
+    let records = asset
+        .sql("select count(vendorname) from 'yfc6-7rgw'")
+        .await?
+        .explain(false, false)?
+        .collect()
+        .await?;
+    assert_eq!(1, records.len());
+
     Ok(())
 }
