@@ -77,3 +77,23 @@ Help dialog:
 ```shell
 aws-vault exec staging -- cargo run --bin dici --help
 ```
+
+
+
+
+Or do a release build:
+```shell
+cargo install --path .
+```
+
+Make sure to add cargo bin to your path like
+```shell
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+
+and then
+```shell
+aws-vault exec staging -- dici sql core --fxf 'yfc6-7rgw' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
+aws-vault exec staging -- dici sql iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
+
+```
