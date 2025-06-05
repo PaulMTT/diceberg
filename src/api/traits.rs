@@ -30,6 +30,7 @@ pub trait TableSource: TableIdentitySource + CatalogSource {
     fn table(&self) -> impl Future<Output = Result<Table>>;
     fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
 
+    fn context(&self) -> impl Future<Output = Result<SessionContext>>;
     fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;
 }
 
@@ -62,12 +63,20 @@ where
             .to_vec())
     }
 
-    async fn sql(&self, sql: &str) -> Result<DataFrame> {
+    async fn context(&self) -> Result<SessionContext> {
         let table: Table = self.table().await?;
         let ctx = SessionContext::new();
         let table_provider = Arc::new(IcebergTableProvider::try_new_from_table(table).await?);
         ctx.register_table(self.table_reference().await?, table_provider)?;
-        ctx.sql(sql).await.context("Failed to execute query")
+        Ok(ctx)
+    }
+
+    async fn sql(&self, sql: &str) -> Result<DataFrame> {
+        self.context()
+            .await?
+            .sql(sql)
+            .await
+            .context("Failed to execute query")
     }
 }
 
