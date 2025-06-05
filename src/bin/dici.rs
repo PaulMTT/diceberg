@@ -6,10 +6,9 @@ use diceberg::api::client::base::DicebergClient;
 use diceberg::api::client::core_scope::DicebergCoreAsset;
 use diceberg::api::client::iceberg_scope::DicebergIcebergAsset;
 use diceberg::api::traits::TableSource;
-use diceberg::cli::{
-    Cli, Commands, InfoAsset, InfoCoreArgs, InfoIcebergArgs, InfoKind, SqlAsset, SqlCoreArgs,
-    SqlIcebergArgs,
-};
+use diceberg::cli::commands::{Cli, Commands};
+use diceberg::cli::info::{InfoAsset, InfoCoreArgs, InfoIcebergArgs, InfoKind};
+use diceberg::cli::sql::{SqlAsset, SqlCoreArgs, SqlIcebergArgs};
 use std::io;
 
 #[tokio::main]

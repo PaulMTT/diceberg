@@ -1,0 +1,22 @@
+use crate::cli::info::InfoKind;
+use crate::cli::sql::SqlAsset;
+use clap::{Args, Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    Info {
+        #[clap(subcommand)]
+        kind: InfoKind,
+    },
+    Sql {
+        #[clap(subcommand)]
+        asset: SqlAsset,
+    },
+}
