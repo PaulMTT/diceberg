@@ -24,6 +24,10 @@ aws-vault exec <profile> -- <command>
 
 The management address is only needed if querying via a core fxf, this also requires you to be on the correct VPN.
 
+## Features
+- Get schema
+- Execute a sql query
+- 
 ## Demo
 
 For now we have, in staging, the inventory:
