@@ -2,7 +2,7 @@ use crate::api::client::asset::{CoreAsset, IcebergAsset};
 use crate::api::client::base::DicebergClient;
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
-use crate::api::traits::TableSource;
+use crate::api::traits::SqlAble;
 use arrow_json::ArrayWriter;
 use clap::{Args, Subcommand};
 use std::io;

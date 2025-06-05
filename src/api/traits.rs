@@ -29,14 +29,16 @@ pub trait TableReferenceSource {
 pub trait TableSource: TableIdentitySource + CatalogSource {
     fn table(&self) -> impl Future<Output = Result<Table>>;
     fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
+}
 
+pub trait SqlAble: TableSource + TableReferenceSource {
     fn context(&self) -> impl Future<Output = Result<SessionContext>>;
     fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;
 }
 
 impl<T> TableSource for T
 where
-    T: TableIdentitySource + CatalogSource + TableReferenceSource,
+    T: TableIdentitySource + CatalogSource,
 {
     async fn table(&self) -> Result<Table> {
         self.catalog()
@@ -62,7 +64,12 @@ where
             .fields()
             .to_vec())
     }
+}
 
+impl<T> SqlAble for T
+where
+    T: TableSource + TableReferenceSource,
+{
     async fn context(&self) -> Result<SessionContext> {
         let table: Table = self.table().await?;
         let ctx = SessionContext::new();
