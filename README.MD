@@ -59,16 +59,16 @@ export DICI_WAREHOUSE='s3://tyler-iceberg-catalog-us-west-2-staging-alpha/'
 Execute sql queries:
 
 ```shell
-aws-vault exec staging -- cargo run --bin dici sql core --fxf 'yfc6-7rgw' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
-aws-vault exec staging -- cargo run --bin dici sql iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
+aws-vault exec staging -- cargo run --bin dici sql core 'yfc6-7rgw' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
+aws-vault exec staging -- cargo run --bin dici sql iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
 
 ```
 
 Get the schema of table:
 
 ```shell
-aws-vault exec staging -- cargo run --bin dici info schema core --fxf 'yfc6-7rgw'
-aws-vault exec staging -- cargo run --bin dici info schema iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors'
+aws-vault exec staging -- cargo run --bin dici info schema core 'yfc6-7rgw'
+aws-vault exec staging -- cargo run --bin dici info schema iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors'
 
 ```
 
@@ -93,7 +93,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 and then
 ```shell
-aws-vault exec staging -- dici sql core --fxf 'yfc6-7rgw' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
-aws-vault exec staging -- dici sql iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
+aws-vault exec staging -- dici sql core 'yfc6-7rgw' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
+aws-vault exec staging -- dici sql iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
 
 ```

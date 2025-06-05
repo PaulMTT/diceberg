@@ -19,16 +19,13 @@ pub enum InfoAsset {
 
 #[derive(Args)]
 pub struct InfoCoreArgs {
-    #[arg(long)]
     pub fxf: String,
 }
 
 #[derive(Args)]
 pub struct InfoIcebergArgs {
-    #[arg(long)]
     pub location: String,
 
-    #[arg(long)]
     pub schema_table: String,
 }
 
