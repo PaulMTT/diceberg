@@ -48,3 +48,16 @@ For now we have, in staging, the inventory:
   "updatedAt": "2025-05-29T21:34:11.171485Z"
 }
 ```
+
+
+```shell
+aws-vault exec staging -- cargo run --bin dici sql core --fxf 'yfc6-7rgw' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
+aws-vault exec staging -- cargo run --bin dici sql iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
+
+```
+
+```shell
+aws-vault exec staging -- cargo run --bin dici info schema core --fxf 'yfc6-7rgw'
+aws-vault exec staging -- cargo run --bin dici info schema iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors'
+
+```
