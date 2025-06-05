@@ -4,7 +4,5 @@ use diceberg::cli::commands::Cli;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = Cli::parse();
-    cli.run().await?;
-    Ok(())
+    Ok(Cli::parse().run().await?)
 }
