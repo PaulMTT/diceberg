@@ -49,6 +49,14 @@ For now we have, in staging, the inventory:
 }
 ```
 
+First, set these envs for staging:
+
+```shell
+export DICI_MANAGEMENT_ADDRESS='http://internal-dici-management-alb-staging-1989759444.us-west-2.elb.amazonaws.com'
+export DICI_WAREHOUSE='s3://tyler-iceberg-catalog-us-west-2-staging-alpha/'
+```
+
+Execute sql queries:
 
 ```shell
 aws-vault exec staging -- cargo run --bin dici sql core --fxf 'yfc6-7rgw' --query "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
@@ -56,11 +64,15 @@ aws-vault exec staging -- cargo run --bin dici sql iceberg --location '_ac642f83
 
 ```
 
+Get the schema of table:
+
 ```shell
 aws-vault exec staging -- cargo run --bin dici info schema core --fxf 'yfc6-7rgw'
 aws-vault exec staging -- cargo run --bin dici info schema iceberg --location '_ac642f8374a4a7c17e855f828c41cf48' --schema-table 'dbo_vendors'
 
 ```
+
+Help dialog:
 
 ```shell
 aws-vault exec staging -- cargo run --bin dici --help
