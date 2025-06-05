@@ -57,6 +57,8 @@ You can query via the icerberg location and schema table way: [iceberg.rs](src/b
 
 Getting the schema of an asset: [schema.rs](src/bin/schema.rs)
 
+Executing sql queries: [sql.rs](src/bin/sql.rs)
+
 ## Upcoming
 
 Work on better table/sql api integration, along with making this a CLI app.
