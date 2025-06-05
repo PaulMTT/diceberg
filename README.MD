@@ -27,7 +27,7 @@ The management address is only needed if querying via a core fxf, this also requ
 ## Features
 - Get schema
 - Execute a sql query
-- 
+
 ## Demo
 
 For now we have, in staging, the inventory:
