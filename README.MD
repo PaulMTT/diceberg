@@ -33,6 +33,7 @@ The management address is only needed if querying via a core fxf, this also requ
 - CLI that exposes everything through sub commands
 - Lib with table/sql api, catalog/context access
 - Table manifest size, table data size
+- Table partitions
 - Snapshot history, snapshot details
 
 ## Demo
@@ -209,6 +210,17 @@ aws-vault exec staging -- dici info table stats data-size iceberg _ac642f8374a4a
 
 {
   "data_size_bytes": 768871
+}
+```
+
+Table partitions:
+```shell
+aws-vault exec staging -- dici info table partition core yfc6-7rgw
+aws-vault exec staging -- dici info table partition iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
+
+{
+  "spec-id": 0,
+  "fields": []
 }
 ```
 
