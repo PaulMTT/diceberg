@@ -1,6 +1,6 @@
 # Diceberg!
 
-Accessing dici assets without using our trino cluster.
+Accessing dici assets without using our trino cluster or core.
 
 This hits our dici-management server for some information.
 
