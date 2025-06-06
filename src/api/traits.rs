@@ -15,25 +15,25 @@ pub trait ClientSource {
 }
 
 pub trait CatalogSource {
-    fn catalog(&self) -> impl Future<Output=Result<GlueCatalog>>;
+    fn catalog(&self) -> impl Future<Output = Result<GlueCatalog>>;
 }
 
 pub trait TableIdentitySource {
-    fn table_ident(&self) -> impl Future<Output=Result<TableIdent>>;
+    fn table_ident(&self) -> impl Future<Output = Result<TableIdent>>;
 }
 
 pub trait TableReferenceSource {
-    fn table_reference(&self) -> impl Future<Output=Result<TableReference>>;
+    fn table_reference(&self) -> impl Future<Output = Result<TableReference>>;
 }
 
 pub trait TableSource: TableIdentitySource + CatalogSource {
-    fn table(&self) -> impl Future<Output=Result<Table>>;
-    fn schema(&self) -> impl Future<Output=Result<Vec<NestedFieldRef>>>;
+    fn table(&self) -> impl Future<Output = Result<Table>>;
+    fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
 }
 
 pub trait SqlAble: TableSource + TableReferenceSource {
-    fn context(&self) -> impl Future<Output=Result<SessionContext>>;
-    fn sql(&self, sql: &str) -> impl Future<Output=Result<DataFrame>>;
+    fn context(&self) -> impl Future<Output = Result<SessionContext>>;
+    fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;
 }
 
 impl<T> TableSource for T
@@ -80,7 +80,7 @@ where
                 .context("Failed to get table reference")?,
             table_provider,
         )
-            .context("Failed to register table")?;
+        .context("Failed to register table")?;
         Ok(ctx)
     }
 

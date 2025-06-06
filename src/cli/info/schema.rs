@@ -25,27 +25,25 @@ pub struct SchemaIcebergArgs {
 }
 
 pub async fn handle_info_schema(asset: SchemaAsset) -> anyhow::Result<()> {
-    match asset {
+    let fields = match asset {
         SchemaAsset::Core(SchemaCoreArgs { fxf }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
-            let fields = asset.schema().await?;
-            serde_json::to_writer_pretty(std::io::stdout(), &fields)
-                .context("failed to serialize core schema")
+            asset.schema().await?
         }
         SchemaAsset::Iceberg(SchemaIcebergArgs {
-                                 location,
-                                 schema_table,
-                             }) => {
+            location,
+            schema_table,
+        }) => {
             let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
                 IcebergAsset::builder()
                     .location(location)
                     .schema_table(schema_table)
                     .build(),
             );
-            let fields = asset.schema().await?;
-            serde_json::to_writer_pretty(std::io::stdout(), &fields)
-                .context("failed to serialize iceberg schema")
+            asset.schema().await?
         }
-    }
+    };
+    serde_json::to_writer_pretty(std::io::stdout(), &fields)
+        .context("failed to serialize core schema")
 }

@@ -40,10 +40,10 @@ pub async fn handle_sql(sql_command: SqlAsset) -> anyhow::Result<()> {
                 .context("failed to write core records to stdout")
         }
         SqlAsset::Iceberg(SqlIcebergArgs {
-                              location,
-                              schema_table,
-                              query,
-                          }) => {
+            location,
+            schema_table,
+            query,
+        }) => {
             let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
                 IcebergAsset::builder()
                     .location(location)

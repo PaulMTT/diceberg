@@ -1,7 +1,8 @@
 use crate::api::management::inventory::Inventory;
 use crate::api::management::registration::Registration;
-use anyhow::{Context, Result};
-use reqwest::Client;
+use anyhow::{anyhow, Context, Result};
+use reqwest::{Client, StatusCode};
+use std::collections::HashMap;
 use std::env;
 use typed_builder::TypedBuilder;
 
@@ -30,6 +31,17 @@ impl Default for DiciManagementClient {
 }
 
 impl DiciManagementClient {
+    pub async fn fetch_inventories(&self) -> Result<Vec<Inventory>> {
+        self.http_client
+            .get(format!("{}/inventory", self.management_address.clone(),))
+            .send()
+            .await
+            .context("Request to dici management failed")?
+            .json::<Vec<Inventory>>()
+            .await
+            .context("Deserializing dici management response failed")
+    }
+
     pub async fn fetch_inventory_by_fxf(&self, fxf: String) -> Result<Inventory> {
         self.http_client
             .get(format!(
@@ -45,12 +57,27 @@ impl DiciManagementClient {
             .context("Deserializing dici management response failed")
     }
 
-    pub async fn fetch_registrations(&self) -> Result<Vec<Registration>> {
+    pub async fn fetch_inventories_by_iceberg_location(
+        &self,
+        iceberg_location: String,
+    ) -> Result<Vec<Inventory>> {
         self.http_client
             .get(format!(
-                "{}/registration",
-                self.management_address.clone()
+                "{}/inventory/iceberg/{}",
+                self.management_address.clone(),
+                iceberg_location
             ))
+            .send()
+            .await
+            .context("Request to dici management failed")?
+            .json::<Vec<Inventory>>()
+            .await
+            .context("Deserializing dici management response failed")
+    }
+
+    pub async fn fetch_registrations(&self) -> Result<Vec<Registration>> {
+        self.http_client
+            .get(format!("{}/registration", self.management_address.clone()))
             .send()
             .await
             .context("Request to dici management failed")?
@@ -60,7 +87,8 @@ impl DiciManagementClient {
     }
 
     pub async fn fetch_registrations_by_path(&self, path: String) -> Result<Vec<Registration>> {
-        self.http_client
+        let response = self
+            .http_client
             .get(format!(
                 "{}/registration/{}",
                 self.management_address.clone(),
@@ -68,9 +96,38 @@ impl DiciManagementClient {
             ))
             .send()
             .await
-            .context("Request to dici management failed")?
-            .json::<Vec<Registration>>()
+            .context("Request to dici management failed")?;
+
+        match response.status() {
+            StatusCode::NOT_FOUND => Ok(vec![]),
+            status if status.is_success() => response
+                .json::<Vec<Registration>>()
+                .await
+                .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
+    }
+
+    pub async fn fetch_registrations_by_path_and_metadata(
+        &self,
+        path: String,
+        metadata: HashMap<String, String>,
+    ) -> Result<Vec<Registration>> {
+        let response = self
+            .http_client
+            .post(format!("{}/query/{}", self.management_address, path))
+            .json(&metadata)
+            .send()
             .await
-            .context("Deserializing dici management response failed")
+            .context("Request to dici management failed")?;
+
+        match response.status() {
+            StatusCode::NOT_FOUND => Ok(vec![]),
+            status if status.is_success() => response
+                .json::<Vec<Registration>>()
+                .await
+                .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
     }
 }
