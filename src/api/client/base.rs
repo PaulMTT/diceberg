@@ -65,7 +65,7 @@ impl CatalogSource for DicebergClient {
                 .warehouse(self.warehouse.clone())
                 .build(),
         )
-        .await
-        .context("Failed to construct glue catalog")
+            .await
+            .context("Failed to construct glue catalog")
     }
 }

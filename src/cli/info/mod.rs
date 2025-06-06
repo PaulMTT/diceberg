@@ -15,8 +15,7 @@ pub enum InfoKind {
 
 pub async fn handle_info(kind: InfoKind) -> anyhow::Result<()> {
     match kind {
-        InfoKind::Schema(asset) => handle_info_schema(asset).await?,
-        InfoKind::Lookup(lookup) => handle_lookup(lookup).await?,
+        InfoKind::Schema(asset) => handle_info_schema(asset).await,
+        InfoKind::Lookup(lookup) => handle_lookup(lookup).await,
     }
-    Ok(())
 }

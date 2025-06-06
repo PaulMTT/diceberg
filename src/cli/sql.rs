@@ -3,6 +3,7 @@ use crate::api::client::base::DicebergClient;
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::SqlAble;
+use anyhow::Context;
 use arrow_json::ArrayWriter;
 use clap::{Args, Subcommand};
 use std::io;
@@ -34,13 +35,15 @@ pub async fn handle_sql(sql_command: SqlAsset) -> anyhow::Result<()> {
             let records = asset.sql(query.as_str()).await?.collect().await?;
             let mut writer = ArrayWriter::new(io::stdout());
             writer.write_batches(&records.iter().collect::<Vec<_>>())?;
-            writer.finish()?;
+            writer
+                .finish()
+                .context("failed to write core records to stdout")
         }
         SqlAsset::Iceberg(SqlIcebergArgs {
-            location,
-            schema_table,
-            query,
-        }) => {
+                              location,
+                              schema_table,
+                              query,
+                          }) => {
             let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
                 IcebergAsset::builder()
                     .location(location)
@@ -50,8 +53,9 @@ pub async fn handle_sql(sql_command: SqlAsset) -> anyhow::Result<()> {
             let records = asset.sql(query.as_str()).await?.collect().await?;
             let mut writer = ArrayWriter::new(io::stdout());
             writer.write_batches(&records.iter().collect::<Vec<_>>())?;
-            writer.finish()?;
+            writer
+                .finish()
+                .context("failed to write iceberg records to stdout")
         }
     }
-    Ok(())
 }

@@ -25,6 +25,7 @@ aws-vault exec <profile> -- <command>
 The management address is only needed if querying via a core fxf, this also requires you to be on the correct VPN.
 
 ## Features
+
 - Get schema
 - Execute a sql query
 
@@ -82,20 +83,20 @@ Help dialog:
 aws-vault exec staging -- cargo run --bin dici --help
 ```
 
-
-
-
 Or do a release build:
+
 ```shell
 cargo install --path .
 ```
 
 Make sure to add cargo bin to your path like
+
 ```shell
 export PATH="$HOME/.cargo/bin:$PATH"
 ```
 
 and then
+
 ```shell
 aws-vault exec staging -- dici sql core 'yfc6-7rgw' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
 aws-vault exec staging -- dici sql iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
