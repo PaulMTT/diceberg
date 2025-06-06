@@ -32,6 +32,8 @@ The management address is only needed if querying via a core fxf, this also requ
 - Execute sql against table
 - CLI that exposes everything through sub commands
 - Lib with table/sql api, catalog/context access
+- Table manifest size, table data size
+- Snapshot history, snapshot details
 
 ## Demo
 
