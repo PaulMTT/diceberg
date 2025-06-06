@@ -95,8 +95,8 @@ aws-vault exec staging -- dici info lookup inventory iceberg _ac642f8374a4a7c17e
 
 Schema:
 ```shell
-aws-vault exec staging -- dici info schema iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
-aws-vault exec staging -- dici info schema core yfc6-7rgw
+aws-vault exec staging -- dici info table schema iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
+aws-vault exec staging -- dici info table schema core yfc6-7rgw
 ```
 
 Execute sql:
