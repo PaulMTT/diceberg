@@ -26,8 +26,12 @@ The management address is only needed if querying via a core fxf, this also requ
 
 ## Features
 
-- Get schema
-- Execute a sql query
+- Lookup registrations
+- Lookup inventories
+- Get schema of table
+- Execute sql against table
+- CLI that exposes everything through sub commands
+- Lib with table/sql api, catalog/context access
 
 ## Demo
 
@@ -61,28 +65,6 @@ export DICI_MANAGEMENT_ADDRESS='http://internal-dici-management-alb-staging-1989
 export DICI_WAREHOUSE='s3://tyler-iceberg-catalog-us-west-2-staging-alpha/'
 ```
 
-Execute sql queries:
-
-```shell
-aws-vault exec staging -- cargo run --bin dici sql core 'yfc6-7rgw' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
-aws-vault exec staging -- cargo run --bin dici sql iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
-
-```
-
-Get the schema of table:
-
-```shell
-aws-vault exec staging -- cargo run --bin dici info schema core 'yfc6-7rgw'
-aws-vault exec staging -- cargo run --bin dici info schema iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors'
-
-```
-
-Help dialog:
-
-```shell
-aws-vault exec staging -- cargo run --bin dici --help
-```
-
 Or do a release build:
 
 ```shell
@@ -97,8 +79,28 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 and then
 
+Lookup registrations:
 ```shell
-aws-vault exec staging -- dici sql core 'yfc6-7rgw' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from 'yfc6-7rgw'"
-aws-vault exec staging -- dici sql iceberg '_ac642f8374a4a7c17e855f828c41cf48' 'dbo_vendors' "select count(distinct(vendorname)) as distinct_count, count(vendorname) as count from dbo_vendors"
+aws-vault exec staging -- dici info lookup registration all
+aws-vault exec staging -- dici info lookup registration path erp_pro_10
+aws-vault exec staging -- dici info lookup registration filtered erp domain erp-pro-10-dici.test-socrata.com
+```
 
+Lookup inventories:
+```shell
+aws-vault exec staging -- dici info lookup inventory all
+aws-vault exec staging -- dici info lookup inventory fxf yfc6-7rgw
+aws-vault exec staging -- dici info lookup inventory iceberg _ac642f8374a4a7c17e855f828c41cf48
+```
+
+Schema:
+```shell
+aws-vault exec staging -- dici info schema iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
+aws-vault exec staging -- dici info schema core yfc6-7rgw
+```
+
+Execute sql:
+```shell
+aws-vault exec staging -- dici sql iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors 'select count(*) from dbo_vendors'
+aws-vault exec staging -- dici sql core 'yfc6-7rgw' "select count(*) from 'yfc6-7rgw'"
 ```
