@@ -43,7 +43,8 @@ impl DiciManagementClient {
     }
 
     pub async fn fetch_inventory_by_fxf(&self, fxf: String) -> Result<Inventory> {
-        self.http_client
+        let response = self
+            .http_client
             .get(format!(
                 "{}/inventory/fxf/{}",
                 self.management_address.clone(),
@@ -51,17 +52,24 @@ impl DiciManagementClient {
             ))
             .send()
             .await
-            .context("Request to dici management failed")?
-            .json::<Inventory>()
-            .await
-            .context("Deserializing dici management response failed")
+            .context("Request to dici management failed")?;
+
+        match response.status() {
+            StatusCode::NOT_FOUND => Err(anyhow!("Inventory not found")),
+            status if status.is_success() => response
+                .json::<Inventory>()
+                .await
+                .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
     }
 
     pub async fn fetch_inventories_by_iceberg_location(
         &self,
         iceberg_location: String,
     ) -> Result<Vec<Inventory>> {
-        self.http_client
+        let response = self
+            .http_client
             .get(format!(
                 "{}/inventory/iceberg/{}",
                 self.management_address.clone(),
@@ -69,10 +77,16 @@ impl DiciManagementClient {
             ))
             .send()
             .await
-            .context("Request to dici management failed")?
-            .json::<Vec<Inventory>>()
-            .await
-            .context("Deserializing dici management response failed")
+            .context("Request to dici management failed")?;
+
+        match response.status() {
+            StatusCode::NOT_FOUND => Ok(vec![]),
+            status if status.is_success() => response
+                .json::<Vec<Inventory>>()
+                .await
+                .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
     }
 
     pub async fn fetch_registrations(&self) -> Result<Vec<Registration>> {
