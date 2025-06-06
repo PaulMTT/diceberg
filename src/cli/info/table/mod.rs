@@ -1,5 +1,7 @@
-use crate::cli::info::schema::{handle_info_schema, SchemaAsset};
 use clap::Subcommand;
+use crate::cli::info::table::schema::{handle_info_schema, SchemaAsset};
+
+pub mod schema;
 
 #[derive(Subcommand)]
 pub enum TableLookupType {

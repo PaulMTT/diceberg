@@ -1,10 +1,8 @@
 use crate::cli::info::lookup::{handle_lookup, LookupType};
-use crate::cli::info::schema::{handle_info_schema, SchemaAsset};
 use clap::Subcommand;
 use crate::cli::info::table::{handle_info_table, TableLookupType};
 
 pub mod lookup;
-pub mod schema;
 pub mod table;
 
 #[derive(Subcommand)]
