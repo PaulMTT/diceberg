@@ -1,6 +1,6 @@
 use crate::cli::info::lookup::{handle_lookup, LookupType};
-use clap::Subcommand;
 use crate::cli::info::table::{handle_info_table, TableLookupType};
+use clap::Subcommand;
 
 pub mod lookup;
 pub mod table;

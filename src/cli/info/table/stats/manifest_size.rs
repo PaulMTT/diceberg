@@ -3,33 +3,16 @@ use crate::api::client::base::DicebergClient;
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
+use crate::cli::info::table::schema::{SchemaAsset, SchemaCoreArgs, SchemaIcebergArgs};
 use anyhow::Context;
-use clap::{Args, Subcommand};
+use serde_json::json;
 
-#[derive(Subcommand)]
-pub enum SchemaAsset {
-    Core(SchemaCoreArgs),
-    Iceberg(SchemaIcebergArgs),
-}
-
-#[derive(Args)]
-pub struct SchemaCoreArgs {
-    pub fxf: String,
-}
-
-#[derive(Args)]
-pub struct SchemaIcebergArgs {
-    pub location: String,
-
-    pub schema_table: String,
-}
-
-pub async fn handle_info_table_schema(asset: SchemaAsset) -> anyhow::Result<()> {
-    let fields = match asset {
+pub async fn handle_info_table_stats_manifest_size(asset: SchemaAsset) -> anyhow::Result<()> {
+    let table = match asset {
         SchemaAsset::Core(SchemaCoreArgs { fxf }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
-            asset.schema().await?
+            asset.table().await?
         }
         SchemaAsset::Iceberg(SchemaIcebergArgs {
             location,
@@ -41,9 +24,22 @@ pub async fn handle_info_table_schema(asset: SchemaAsset) -> anyhow::Result<()> 
                     .schema_table(schema_table)
                     .build(),
             );
-            asset.schema().await?
+            asset.table().await?
         }
     };
-    serde_json::to_writer_pretty(std::io::stdout(), &fields)
+    let metadata = table.metadata();
+
+    let mut total_size: u64 = 0;
+
+    for snapshot in metadata.snapshots() {
+        let manifest_files = snapshot
+            .load_manifest_list(table.file_io(), metadata)
+            .await?;
+        for manifest_file in manifest_files.consume_entries() {
+            total_size += manifest_file.manifest_length as u64
+        }
+    }
+    let output = json!({ "manifest_size_bytes": total_size });
+    serde_json::to_writer_pretty(std::io::stdout(), &output)
         .context("failed to serialize core schema")
 }
