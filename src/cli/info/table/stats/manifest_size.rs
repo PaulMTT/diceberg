@@ -36,7 +36,7 @@ pub async fn handle_info_table_stats_manifest_size(asset: SchemaAsset) -> anyhow
             .load_manifest_list(table.file_io(), metadata)
             .await?;
         for manifest_file in manifest_files.consume_entries() {
-            total_size += manifest_file.manifest_length as u64
+            total_size += manifest_file.manifest_length as u64;
         }
     }
     let output = json!({ "manifest_size_bytes": total_size });
