@@ -58,4 +58,19 @@ impl DiciManagementClient {
             .await
             .context("Deserializing dici management response failed")
     }
+
+    pub async fn fetch_registrations_by_path(&self, path: String) -> Result<Vec<Registration>> {
+        self.http_client
+            .get(format!(
+                "{}/registration/{}",
+                self.management_address.clone(),
+                path
+            ))
+            .send()
+            .await
+            .context("Request to dici management failed")?
+            .json::<Vec<Registration>>()
+            .await
+            .context("Deserializing dici management response failed")
+    }
 }

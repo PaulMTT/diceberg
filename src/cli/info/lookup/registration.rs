@@ -24,7 +24,10 @@ pub async fn handle_lookup_registration(
                 .context("failed to serialize registrations")
         }
         RegistrationLookupType::Path(args) => {
-            todo!()
+            let dici_management_client = DiciManagementClient::default();
+            let registrations = dici_management_client.fetch_registrations_by_path(args.path).await?;
+            serde_json::to_writer_pretty(std::io::stdout(), &registrations)
+                .context("failed to serialize registrations")
         }
     }
 }
