@@ -6,45 +6,32 @@ use crate::api::traits::TableSource;
 use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
-pub enum InfoKind {
-    #[clap(subcommand)]
-    Schema(InfoAsset),
-}
-
-#[derive(Subcommand)]
-pub enum InfoAsset {
-    Core(InfoCoreArgs),
-    Iceberg(InfoIcebergArgs),
+pub enum SchemaAsset {
+    Core(SchemaCoreArgs),
+    Iceberg(SchemaIcebergArgs),
 }
 
 #[derive(Args)]
-pub struct InfoCoreArgs {
+pub struct SchemaCoreArgs {
     pub fxf: String,
 }
 
 #[derive(Args)]
-pub struct InfoIcebergArgs {
+pub struct SchemaIcebergArgs {
     pub location: String,
 
     pub schema_table: String,
 }
 
-pub async fn handle_info(kind: InfoKind) -> anyhow::Result<()> {
-    match kind {
-        InfoKind::Schema(asset) => handle_info_schema(asset).await?,
-    }
-    Ok(())
-}
-
-pub async fn handle_info_schema(asset: InfoAsset) -> anyhow::Result<()> {
+pub async fn handle_info_schema(asset: SchemaAsset) -> anyhow::Result<()> {
     match asset {
-        InfoAsset::Core(InfoCoreArgs { fxf }) => {
+        SchemaAsset::Core(SchemaCoreArgs { fxf }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
             let fields = asset.schema().await?;
             serde_json::to_writer_pretty(std::io::stdout(), &fields)?;
         }
-        InfoAsset::Iceberg(InfoIcebergArgs {
+        SchemaAsset::Iceberg(SchemaIcebergArgs {
             location,
             schema_table,
         }) => {

@@ -1,8 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
-use diceberg::cli::commands::Cli;
+use diceberg::cli::DiciCli;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    Ok(Cli::parse().run().await?)
+    Ok(DiciCli::parse().run().await?)
 }
