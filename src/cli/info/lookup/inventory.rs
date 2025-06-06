@@ -27,19 +27,19 @@ pub async fn handle_lookup_inventory(
         InventoryLookupType::All => {
             let inventories = dici_management_client.fetch_inventories().await?;
             serde_json::to_writer_pretty(std::io::stdout(), &inventories)
-                .context("failed to serialize registrations")
+                .context("failed to serialize inventories")
         }
         InventoryLookupType::Fxf(FxfArgs { fxf }) => {
             let inventories = dici_management_client.fetch_inventory_by_fxf(fxf).await?;
             serde_json::to_writer_pretty(std::io::stdout(), &inventories)
-                .context("failed to serialize registrations")
+                .context("failed to serialize inventory")
         }
         InventoryLookupType::Iceberg(IcebergArgs { location }) => {
             let inventories = dici_management_client
                 .fetch_inventories_by_iceberg_location(location)
                 .await?;
             serde_json::to_writer_pretty(std::io::stdout(), &inventories)
-                .context("failed to serialize registrations")
+                .context("failed to serialize inventories")
         }
     }
 }

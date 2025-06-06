@@ -44,6 +44,5 @@ pub async fn handle_info_table_schema(asset: SchemaAsset) -> anyhow::Result<()> 
             asset.schema().await?
         }
     };
-    serde_json::to_writer_pretty(std::io::stdout(), &fields)
-        .context("failed to serialize core schema")
+    serde_json::to_writer_pretty(std::io::stdout(), &fields).context("failed to serialize schema")
 }

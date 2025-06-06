@@ -41,5 +41,5 @@ pub async fn handle_info_table_stats_manifest_size(asset: SchemaAsset) -> anyhow
     }
     let output = json!({ "manifest_size_bytes": total_size });
     serde_json::to_writer_pretty(std::io::stdout(), &output)
-        .context("failed to serialize core schema")
+        .context("failed to serialize manifest_size_bytes")
 }

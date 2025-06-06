@@ -29,5 +29,5 @@ pub async fn handle_info_table_partition(asset: SchemaAsset) -> anyhow::Result<(
 
     let metadata = table.metadata();
     serde_json::to_writer_pretty(std::io::stdout(), metadata.default_partition_spec())
-        .context("failed to serialize core schema")
+        .context("failed to serialize partitions")
 }

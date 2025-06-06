@@ -27,5 +27,5 @@ pub async fn handle_info_table_history_all(asset: SchemaAsset) -> anyhow::Result
         }
     };
     serde_json::to_writer_pretty(std::io::stdout(), table.metadata().history())
-        .context("failed to serialize core schema")
+        .context("failed to serialize table history")
 }

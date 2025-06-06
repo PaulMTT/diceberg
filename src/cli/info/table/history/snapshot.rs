@@ -55,7 +55,7 @@ pub async fn handle_info_table_snapshot(asset: SnapshotAsset) -> anyhow::Result<
                 .snapshot_by_id(snapshot)
                 .context("Failed to find the snapshot by id")?;
             serde_json::to_writer_pretty(std::io::stdout(), snapshot)
-                .context("failed to serialize core snapshot")
+                .context("failed to serialize iceberg snapshot")
         }
     }
 }

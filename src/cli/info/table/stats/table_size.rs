@@ -44,5 +44,5 @@ pub async fn handle_info_table_stats_data_size(asset: SchemaAsset) -> anyhow::Re
     }
     let output = json!({ "data_size_bytes": total_size });
     serde_json::to_writer_pretty(std::io::stdout(), &output)
-        .context("failed to serialize core schema")
+        .context("failed to serialize data_size_bytes")
 }
