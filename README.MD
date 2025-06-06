@@ -150,8 +150,8 @@ aws-vault exec staging -- dici info table schema core yfc6-7rgw
 
 Table snapshot history:
 ```shell
-aws-vault exec staging -- dici info table history iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
-aws-vault exec staging -- dici info table history core yfc6-7rgw
+aws-vault exec staging -- dici info table history all iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
+aws-vault exec staging -- dici info table history all core yfc6-7rgw
 
 [
   {
