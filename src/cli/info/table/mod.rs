@@ -1,7 +1,7 @@
-use crate::cli::info::table::history::{handle_info_table_history, HistoryType};
+use crate::cli::info::table::history::{handle_info_table_history, HistoryCommand};
 use crate::cli::info::table::partition::handle_info_table_partition;
-use crate::cli::info::table::schema::{handle_info_table_schema, SchemaAsset};
-use crate::cli::info::table::stats::{handle_info_table_stats, StatsType};
+use crate::cli::info::table::schema::{handle_info_table_schema, SchemaArgs};
+use crate::cli::info::table::stats::{handle_info_table_stats, StatsCommand};
 use clap::Subcommand;
 
 pub mod history;
@@ -10,22 +10,22 @@ pub mod schema;
 pub mod stats;
 
 #[derive(Subcommand)]
-pub enum TableLookupType {
+pub enum InfoTableCommand {
     #[clap(subcommand)]
-    Schema(SchemaAsset),
+    Schema(SchemaArgs),
     #[clap(subcommand)]
-    Partition(SchemaAsset),
+    Partition(SchemaArgs),
     #[clap(subcommand)]
-    History(HistoryType),
+    History(HistoryCommand),
     #[clap(subcommand)]
-    Stats(StatsType),
+    Stats(StatsCommand),
 }
 
-pub async fn handle_info_table(table_lookup_type: TableLookupType) -> anyhow::Result<()> {
+pub async fn handle_info_table(table_lookup_type: InfoTableCommand) -> anyhow::Result<()> {
     match table_lookup_type {
-        TableLookupType::Schema(asset) => handle_info_table_schema(asset).await,
-        TableLookupType::Partition(asset) => handle_info_table_partition(asset).await,
-        TableLookupType::History(history) => handle_info_table_history(history).await,
-        TableLookupType::Stats(stats) => handle_info_table_stats(stats).await,
+        InfoTableCommand::Schema(asset) => handle_info_table_schema(asset).await,
+        InfoTableCommand::Partition(asset) => handle_info_table_partition(asset).await,
+        InfoTableCommand::History(history) => handle_info_table_history(history).await,
+        InfoTableCommand::Stats(stats) => handle_info_table_stats(stats).await,
     }
 }

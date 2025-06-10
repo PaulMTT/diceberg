@@ -7,7 +7,7 @@ use anyhow::Context;
 use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
-pub enum SnapshotAsset {
+pub enum SnapshotArgs {
     Core(SnapshotCoreArgs),
     Iceberg(SnapshotIcebergArgs),
 }
@@ -25,9 +25,9 @@ pub struct SnapshotIcebergArgs {
     pub snapshot: i64,
 }
 
-pub async fn handle_info_table_snapshot(asset: SnapshotAsset) -> anyhow::Result<()> {
+pub async fn handle_info_table_snapshot(asset: SnapshotArgs) -> anyhow::Result<()> {
     match asset {
-        SnapshotAsset::Core(SnapshotCoreArgs { fxf, snapshot }) => {
+        SnapshotArgs::Core(SnapshotCoreArgs { fxf, snapshot }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
             let table = asset.table().await?;
@@ -38,7 +38,7 @@ pub async fn handle_info_table_snapshot(asset: SnapshotAsset) -> anyhow::Result<
             serde_json::to_writer_pretty(std::io::stdout(), snapshot)
                 .context("failed to serialize core snapshot")
         }
-        SnapshotAsset::Iceberg(SnapshotIcebergArgs {
+        SnapshotArgs::Iceberg(SnapshotIcebergArgs {
             location,
             schema_table,
             snapshot,

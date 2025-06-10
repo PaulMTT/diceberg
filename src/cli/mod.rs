@@ -1,5 +1,5 @@
-use crate::cli::info::{handle_info, InfoKind};
-use crate::cli::sql::{handle_sql, SqlAsset};
+use crate::cli::info::{handle_info, InfoCommand};
+use crate::cli::sql::{handle_sql, SqlArgs};
 use clap::{Parser, Subcommand};
 
 pub mod info;
@@ -15,9 +15,9 @@ pub struct DiciCli {
 #[derive(Subcommand)]
 pub enum Commands {
     #[clap(subcommand)]
-    Info(InfoKind),
+    Info(InfoCommand),
     #[clap(subcommand)]
-    Sql(SqlAsset),
+    Sql(SqlArgs),
 }
 
 impl DiciCli {

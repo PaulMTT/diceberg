@@ -9,7 +9,7 @@ use clap::{Args, Subcommand};
 use std::io;
 
 #[derive(Subcommand)]
-pub enum SqlAsset {
+pub enum SqlArgs {
     Core(SqlCoreArgs),
     Iceberg(SqlIcebergArgs),
 }
@@ -27,9 +27,9 @@ pub struct SqlIcebergArgs {
     pub query: String,
 }
 
-pub async fn handle_sql(sql_command: SqlAsset) -> anyhow::Result<()> {
+pub async fn handle_sql(sql_command: SqlArgs) -> anyhow::Result<()> {
     match sql_command {
-        SqlAsset::Core(SqlCoreArgs { fxf, query }) => {
+        SqlArgs::Core(SqlCoreArgs { fxf, query }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
             let records = asset.sql(query.as_str()).await?.collect().await?;
@@ -39,7 +39,7 @@ pub async fn handle_sql(sql_command: SqlAsset) -> anyhow::Result<()> {
                 .finish()
                 .context("failed to write core records to stdout")
         }
-        SqlAsset::Iceberg(SqlIcebergArgs {
+        SqlArgs::Iceberg(SqlIcebergArgs {
             location,
             schema_table,
             query,

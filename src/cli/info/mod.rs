@@ -1,21 +1,21 @@
-use crate::cli::info::lookup::{handle_lookup, LookupType};
-use crate::cli::info::table::{handle_info_table, TableLookupType};
+use crate::cli::info::lookup::{handle_lookup, InfoLookupCommand};
+use crate::cli::info::table::{handle_info_table, InfoTableCommand};
 use clap::Subcommand;
 
 pub mod lookup;
 pub mod table;
 
 #[derive(Subcommand)]
-pub enum InfoKind {
+pub enum InfoCommand {
     #[clap(subcommand)]
-    Table(TableLookupType),
+    Table(InfoTableCommand),
     #[clap(subcommand)]
-    Lookup(LookupType),
+    Lookup(InfoLookupCommand),
 }
 
-pub async fn handle_info(kind: InfoKind) -> anyhow::Result<()> {
+pub async fn handle_info(kind: InfoCommand) -> anyhow::Result<()> {
     match kind {
-        InfoKind::Table(lookup) => handle_info_table(lookup).await,
-        InfoKind::Lookup(lookup) => handle_lookup(lookup).await,
+        InfoCommand::Table(lookup) => handle_info_table(lookup).await,
+        InfoCommand::Lookup(lookup) => handle_lookup(lookup).await,
     }
 }

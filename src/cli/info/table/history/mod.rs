@@ -1,23 +1,23 @@
 use crate::cli::info::table::history::all::handle_info_table_history_all;
 use crate::cli::info::table::history::snapshot::handle_info_table_snapshot;
-use crate::cli::info::table::schema::SchemaAsset;
+use crate::cli::info::table::schema::SchemaArgs;
 use clap::Subcommand;
-use snapshot::SnapshotAsset;
+use snapshot::SnapshotArgs;
 
 mod all;
 pub mod snapshot;
 
 #[derive(Subcommand)]
-pub enum HistoryType {
+pub enum HistoryCommand {
     #[clap(subcommand)]
-    All(SchemaAsset),
+    All(SchemaArgs),
     #[clap(subcommand)]
-    Snapshot(SnapshotAsset),
+    Snapshot(SnapshotArgs),
 }
 
-pub async fn handle_info_table_history(history: HistoryType) -> anyhow::Result<()> {
+pub async fn handle_info_table_history(history: HistoryCommand) -> anyhow::Result<()> {
     match history {
-        HistoryType::All(asset) => handle_info_table_history_all(asset).await,
-        HistoryType::Snapshot(snapshot) => handle_info_table_snapshot(snapshot).await,
+        HistoryCommand::All(asset) => handle_info_table_history_all(asset).await,
+        HistoryCommand::Snapshot(snapshot) => handle_info_table_snapshot(snapshot).await,
     }
 }

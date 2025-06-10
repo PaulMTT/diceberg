@@ -3,17 +3,17 @@ use crate::api::client::base::DicebergClient;
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
-use crate::cli::info::table::schema::{SchemaAsset, SchemaCoreArgs, SchemaIcebergArgs};
+use crate::cli::info::table::schema::{SchemaArgs, SchemaCoreArgs, SchemaIcebergArgs};
 use anyhow::Context;
 
-pub async fn handle_info_table_partition(asset: SchemaAsset) -> anyhow::Result<()> {
+pub async fn handle_info_table_partition(asset: SchemaArgs) -> anyhow::Result<()> {
     let table = match asset {
-        SchemaAsset::Core(SchemaCoreArgs { fxf }) => {
+        SchemaArgs::Core(SchemaCoreArgs { fxf }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
             asset.table().await?
         }
-        SchemaAsset::Iceberg(SchemaIcebergArgs {
+        SchemaArgs::Iceberg(SchemaIcebergArgs {
             location,
             schema_table,
         }) => {

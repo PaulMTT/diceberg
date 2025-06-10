@@ -6,19 +6,19 @@ use crate::cli::info::lookup::registration::{handle_lookup_registration, Registr
 use clap::Subcommand;
 
 #[derive(Subcommand)]
-pub enum LookupType {
+pub enum InfoLookupCommand {
     #[clap(subcommand)]
     Registration(RegistrationLookupType),
     #[clap(subcommand)]
     Inventory(InventoryLookupType),
 }
 
-pub async fn handle_lookup(lookup_type: LookupType) -> anyhow::Result<()> {
+pub async fn handle_lookup(lookup_type: InfoLookupCommand) -> anyhow::Result<()> {
     match lookup_type {
-        LookupType::Registration(registration_lookup_type) => {
+        InfoLookupCommand::Registration(registration_lookup_type) => {
             handle_lookup_registration(registration_lookup_type).await
         }
-        LookupType::Inventory(inventory_lookup_type) => {
+        InfoLookupCommand::Inventory(inventory_lookup_type) => {
             handle_lookup_inventory(inventory_lookup_type).await
         }
     }

@@ -7,7 +7,7 @@ use anyhow::Context;
 use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
-pub enum SchemaAsset {
+pub enum SchemaArgs {
     Core(SchemaCoreArgs),
     Iceberg(SchemaIcebergArgs),
 }
@@ -24,14 +24,14 @@ pub struct SchemaIcebergArgs {
     pub schema_table: String,
 }
 
-pub async fn handle_info_table_schema(asset: SchemaAsset) -> anyhow::Result<()> {
+pub async fn handle_info_table_schema(asset: SchemaArgs) -> anyhow::Result<()> {
     let fields = match asset {
-        SchemaAsset::Core(SchemaCoreArgs { fxf }) => {
+        SchemaArgs::Core(SchemaCoreArgs { fxf }) => {
             let asset: DicebergCoreAsset =
                 DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
             asset.schema().await?
         }
-        SchemaAsset::Iceberg(SchemaIcebergArgs {
+        SchemaArgs::Iceberg(SchemaIcebergArgs {
             location,
             schema_table,
         }) => {
