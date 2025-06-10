@@ -41,6 +41,8 @@ The management address is only needed if querying via a core fxf, this also requ
 - Table manifest size, table data size
 - Table partitions
 - Snapshot history, snapshot details
+- JSON or IPC(arrow format) sql output format
+- IPC print utility
 
 ## Demo
 
@@ -237,4 +239,19 @@ aws-vault exec staging -- dici sql core yfc6-7rgw "select count(*) from 'yfc6-7r
 
 
 [{"count(*)":463}]
+```
+
+Execute sql, outputting arrow IPC, and then reading and priting the dataframe:
+```shell
+aws-vault exec staging -- dici sql iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors 'select count(*) from dbo_vendors' --format ipc | dici util ipc print
+aws-vault exec staging -- dici sql core yfc6-7rgw "select count(*) from 'yfc6-7rgw'" --format ipc | dici util ipc print
+
+
+shape: (1, 1)
+┌──────────┐
+│ count(*) │
+│ ---      │
+│ i64      │
+╞══════════╡
+│ 463      │
 ```
