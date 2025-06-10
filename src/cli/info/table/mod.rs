@@ -11,12 +11,16 @@ pub mod stats;
 
 #[derive(Subcommand)]
 pub enum InfoTableCommand {
+    /// The schema of the table
     #[clap(subcommand)]
     Schema(SchemaArgs),
+    /// The partitions used in the table
     #[clap(subcommand)]
     Partition(SchemaArgs),
+    /// The table history
     #[clap(subcommand)]
     History(HistoryCommand),
+    /// Table statistics
     #[clap(subcommand)]
     Stats(StatsCommand),
 }

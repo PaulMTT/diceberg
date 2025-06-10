@@ -7,8 +7,10 @@ use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum InfoLookupCommand {
+    /// Find registrations
     #[clap(subcommand)]
     Registration(RegistrationLookupType),
+    /// Find inventories
     #[clap(subcommand)]
     Inventory(InventoryLookupType),
 }

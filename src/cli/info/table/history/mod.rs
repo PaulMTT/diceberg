@@ -9,8 +9,10 @@ pub mod snapshot;
 
 #[derive(Subcommand)]
 pub enum HistoryCommand {
+    /// List all snapshots
     #[clap(subcommand)]
     All(SchemaArgs),
+    /// Get details of a specific snapshot
     #[clap(subcommand)]
     Snapshot(SnapshotArgs),
 }

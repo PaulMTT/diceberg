@@ -4,18 +4,23 @@ use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
 pub enum InventoryLookupType {
+    /// All inventories
     All,
+    /// A single inventory by core four-by-four
     Fxf(FxfArgs),
+    /// Multiple inventories by iceberg location
     Iceberg(IcebergArgs),
 }
 
 #[derive(Args)]
 pub struct FxfArgs {
+    /// A core four-by-four identifier
     fxf: String,
 }
 
 #[derive(Args)]
 pub struct IcebergArgs {
+    /// An iceberg location
     location: String,
 }
 

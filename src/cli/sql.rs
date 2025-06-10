@@ -10,20 +10,27 @@ use std::io;
 
 #[derive(Subcommand)]
 pub enum SqlArgs {
+    /// Using the core fxf identifier
     Core(SqlCoreArgs),
+    /// Using the iceberg identifier
     Iceberg(SqlIcebergArgs),
 }
 
 #[derive(Args)]
 pub struct SqlCoreArgs {
+    /// The core four-by-four
     pub fxf: String,
+    /// The sql statement
     pub query: String,
 }
 
 #[derive(Args)]
 pub struct SqlIcebergArgs {
+    /// The iceberg location
     pub location: String,
+    /// The iceberg schema-table
     pub schema_table: String,
+    /// The sql statement
     pub query: String,
 }
 

@@ -8,19 +8,23 @@ use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
 pub enum SchemaArgs {
+    /// Using core fxf identifier
     Core(SchemaCoreArgs),
+    /// Using iceberg identifier
     Iceberg(SchemaIcebergArgs),
 }
 
 #[derive(Args)]
 pub struct SchemaCoreArgs {
+    /// The core four-by-four
     pub fxf: String,
 }
 
 #[derive(Args)]
 pub struct SchemaIcebergArgs {
+    /// The iceberg location
     pub location: String,
-
+    /// The iceberg schema-table
     pub schema_table: String,
 }
 

@@ -8,8 +8,10 @@ use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum StatsCommand {
+    /// The size of the metadata files
     #[clap(subcommand)]
     ManifestSize(SchemaArgs),
+    /// The size of the data files
     #[clap(subcommand)]
     DataSize(SchemaArgs),
 }

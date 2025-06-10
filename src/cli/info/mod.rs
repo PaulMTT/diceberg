@@ -7,8 +7,10 @@ pub mod table;
 
 #[derive(Subcommand)]
 pub enum InfoCommand {
+    /// Table level information
     #[clap(subcommand)]
     Table(InfoTableCommand),
+    /// DICI metadata from the management API
     #[clap(subcommand)]
     Lookup(InfoLookupCommand),
 }
