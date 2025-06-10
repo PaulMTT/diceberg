@@ -15,9 +15,12 @@ reqwest = "0.12.19"
 iceberg = { version = "0.5.1", features = ["storage-all"] }
 iceberg-catalog-glue = { version = "0.5.1" }
 iceberg-datafusion = "0.5.1"
-datafusion = "47.0.0"
+datafusion = { version = "47.0.0" }
 
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.39", features = ["derive"] }
 serde_json = "1.0.140"
-arrow-json = "55.1.0"
+arrow = { version = "55.1.0", features = ["json", "ipc"]}
+arrow-json = { version = "55.1.0" }
+arrow-ipc = { version = "55.1.0" }
+polars = { version = "0.48.1", features = ["polars-io", "ipc", "ipc_streaming"]}
