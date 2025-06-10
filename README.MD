@@ -76,7 +76,7 @@ export DICI_MANAGEMENT_ADDRESS='http://internal-dici-management-alb-staging-1989
 export DICI_WAREHOUSE='s3://tyler-iceberg-catalog-us-west-2-staging-alpha/'
 ```
 
-Or do a release build:
+Install the release version of the tool:
 
 ```shell
 cargo install --path .
