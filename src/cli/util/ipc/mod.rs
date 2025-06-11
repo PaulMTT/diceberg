@@ -9,6 +9,7 @@ use clap::Subcommand;
 pub enum IpcCommand {
     /// Read an arrow IPC dataframe from stdin and print it
     Print,
+    /// Execute sql against an IPC dataframe from stdin
     Query(IpcQueryArgs),
 }
 

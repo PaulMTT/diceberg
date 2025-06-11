@@ -11,6 +11,7 @@ use std::sync::Arc;
 
 #[derive(Args)]
 pub struct IpcQueryArgs {
+    /// The sql query, the table identifier is 'this'
     pub query: String,
     /// The response format
     #[arg(short, long, value_enum, default_value_t)]
