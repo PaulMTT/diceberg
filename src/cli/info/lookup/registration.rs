@@ -4,7 +4,7 @@ use clap::{Args, Subcommand};
 use std::collections::HashMap;
 
 #[derive(Subcommand)]
-pub enum RegistrationLookupType {
+pub enum RegistrationLookupCommand {
     /// All registrations
     All,
     /// Registrations that are within a path
@@ -27,17 +27,17 @@ pub struct PathArgs {
 }
 
 pub async fn handle_lookup_registration(
-    registration_lookup_type: RegistrationLookupType,
+    registration_lookup_command: RegistrationLookupCommand,
 ) -> anyhow::Result<()> {
     let dici_management_client = DiciManagementClient::default();
-    let registrations = match registration_lookup_type {
-        RegistrationLookupType::All => dici_management_client.fetch_registrations().await?,
-        RegistrationLookupType::Path(args) => {
+    let registrations = match registration_lookup_command {
+        RegistrationLookupCommand::All => dici_management_client.fetch_registrations().await?,
+        RegistrationLookupCommand::Path(args) => {
             dici_management_client
                 .fetch_registrations_by_path(args.path)
                 .await?
         }
-        RegistrationLookupType::Filtered(MetadataArgs { path, pairs }) => {
+        RegistrationLookupCommand::Filtered(MetadataArgs { path, pairs }) => {
             let metadata: HashMap<String, String> = pairs
                 .chunks_exact(2)
                 .map(|chunk| (chunk[0].clone(), chunk[1].clone()))

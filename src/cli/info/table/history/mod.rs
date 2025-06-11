@@ -1,6 +1,6 @@
 use crate::cli::info::table::history::all::handle_info_table_history_all;
 use crate::cli::info::table::history::snapshot::handle_info_table_snapshot;
-use crate::cli::info::table::schema::AssetArgs;
+use crate::cli::info::table::AssetArgs;
 use clap::Subcommand;
 use snapshot::SnapshotCommand;
 
@@ -17,9 +17,9 @@ pub enum HistoryCommand {
     Snapshot(SnapshotCommand),
 }
 
-pub async fn handle_info_table_history(history: HistoryCommand) -> anyhow::Result<()> {
-    match history {
-        HistoryCommand::All(asset) => handle_info_table_history_all(asset).await,
-        HistoryCommand::Snapshot(snapshot) => handle_info_table_snapshot(snapshot).await,
+pub async fn handle_info_table_history(history_command: HistoryCommand) -> anyhow::Result<()> {
+    match history_command {
+        HistoryCommand::All(args) => handle_info_table_history_all(args).await,
+        HistoryCommand::Snapshot(args) => handle_info_table_snapshot(args).await,
     }
 }

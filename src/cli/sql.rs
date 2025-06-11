@@ -1,7 +1,7 @@
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::SqlAble;
-use crate::cli::info::table::schema::{CoreAssetArgs, IcebergAssetArgs};
+use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::Context;
 use arrow::array::RecordBatch;
 use arrow_ipc::writer::StreamWriter;

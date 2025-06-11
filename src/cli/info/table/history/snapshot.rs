@@ -1,7 +1,7 @@
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
-use crate::cli::info::table::schema::{CoreAssetArgs, IcebergAssetArgs};
+use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::Context;
 use clap::{Args, Subcommand};
 
@@ -35,8 +35,8 @@ pub struct SnapshotIcebergArgs {
     pub snapshot: SnapshotArgs,
 }
 
-pub async fn handle_info_table_snapshot(asset: SnapshotCommand) -> anyhow::Result<()> {
-    match asset {
+pub async fn handle_info_table_snapshot(snapshot_command: SnapshotCommand) -> anyhow::Result<()> {
+    match snapshot_command {
         SnapshotCommand::Core(SnapshotCoreArgs {
             core,
             snapshot: SnapshotArgs { snapshot },

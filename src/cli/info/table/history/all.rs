@@ -1,11 +1,11 @@
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
-use crate::cli::info::table::schema::AssetArgs;
+use crate::cli::info::table::AssetArgs;
 use anyhow::Context;
 
-pub async fn handle_info_table_history_all(asset: AssetArgs) -> anyhow::Result<()> {
-    let table = match asset {
+pub async fn handle_info_table_history_all(asset_args: AssetArgs) -> anyhow::Result<()> {
+    let table = match asset_args {
         AssetArgs::Core(args) => {
             let asset: DicebergCoreAsset = args.into();
             asset.table().await?

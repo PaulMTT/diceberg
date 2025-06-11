@@ -15,9 +15,9 @@ pub enum InfoCommand {
     Lookup(InfoLookupCommand),
 }
 
-pub async fn handle_info(kind: InfoCommand) -> anyhow::Result<()> {
-    match kind {
-        InfoCommand::Table(lookup) => handle_info_table(lookup).await,
-        InfoCommand::Lookup(lookup) => handle_lookup(lookup).await,
+pub async fn handle_info(info_command: InfoCommand) -> anyhow::Result<()> {
+    match info_command {
+        InfoCommand::Table(args) => handle_info_table(args).await,
+        InfoCommand::Lookup(args) => handle_lookup(args).await,
     }
 }

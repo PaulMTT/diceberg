@@ -12,6 +12,6 @@ pub enum UtilCommand {
 
 pub async fn handle_util(util_command: UtilCommand) -> anyhow::Result<()> {
     match util_command {
-        UtilCommand::IPC(ipc) => handle_util_ipc(ipc).await,
+        UtilCommand::IPC(args) => handle_util_ipc(args).await,
     }
 }

@@ -31,9 +31,9 @@ pub enum Commands {
 impl DiciCli {
     pub async fn run(self) -> anyhow::Result<()> {
         match self.command {
-            Commands::Info(kind) => handle_info(kind).await,
-            Commands::Sql(asset) => handle_sql(asset).await,
-            Commands::Util(util) => handle_util(util).await,
+            Commands::Info(args) => handle_info(args).await,
+            Commands::Sql(args) => handle_sql(args).await,
+            Commands::Util(args) => handle_util(args).await,
         }
     }
 }
