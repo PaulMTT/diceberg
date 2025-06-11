@@ -43,6 +43,7 @@ The management address is only needed if querying via a core fxf, this also requ
 - Snapshot history, snapshot details
 - JSON or IPC(arrow format) sql output format
 - IPC print utility
+- Execute sql against dataframes(IPC) input to stdin
 
 ## Demo
 
@@ -255,4 +256,18 @@ shape: (1, 1)
 ╞══════════╡
 │ 463      │
 └──────────┘
+```
+
+You can also execute sql against raw dataframes in ipc format, the table identifier will be `this`:
+```shell
+aws-vault exec staging -- dici sql core yfc6-7rgw "select * from 'yfc6-7rgw' limit 100" --format ipc | dici util ipc query "select * from this order by vendorname limit 1" --format ipc | dici util ipc print
+
+shape: (1, 15)
+┌────────────┬──────────┬──────────────────┬────────────────┬───┬────────────┬───────────────────┬────────────────────┬────────────────────┐
+│ vendorname ┆ vendorid ┆ vendoraddress1   ┆ vendoraddress2 ┆ … ┆ fiscalyear ┆ vendorcontactname ┆ vendorcontactphone ┆ vendorcontactemail │
+│ ---        ┆ ---      ┆ ---              ┆ ---            ┆   ┆ ---        ┆ ---               ┆ ---                ┆ ---                │
+│ str        ┆ str      ┆ str              ┆ str            ┆   ┆ i64        ┆ str               ┆ str                ┆ str                │
+╞════════════╪══════════╪══════════════════╪════════════════╪═══╪════════════╪═══════════════════╪════════════════════╪════════════════════╡
+│ AARON HAAR ┆ 383000   ┆ 581 WHITE AVENUE ┆                ┆ … ┆ 2025       ┆ null              ┆ null               ┆ null               │
+└────────────┴──────────┴──────────────────┴────────────────┴───┴────────────┴───────────────────┴────────────────────┴────────────────────┘
 ```
