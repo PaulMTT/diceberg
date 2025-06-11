@@ -26,7 +26,7 @@ pub struct SqlCoreArgs {
     pub query: String,
     /// The response format
     #[arg(short, long, value_enum, default_value_t)]
-    pub format: SqlOutputFormat
+    pub format: SqlOutputFormat,
 }
 
 #[derive(Args)]
@@ -39,13 +39,13 @@ pub struct SqlIcebergArgs {
     pub query: String,
     /// The response format
     #[arg(short, long, value_enum, default_value_t)]
-    pub format: SqlOutputFormat
+    pub format: SqlOutputFormat,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
-pub enum SqlOutputFormat{
+pub enum SqlOutputFormat {
     JSON,
-    IPC
+    IPC,
 }
 
 impl Default for SqlOutputFormat {
@@ -65,18 +65,18 @@ pub async fn handle_sql(sql_command: SqlArgs) -> anyhow::Result<()> {
                 SqlOutputFormat::JSON => {
                     let mut writer = ArrayWriter::new(io::stdout());
                     writer.write_batches(&records.iter().collect::<Vec<_>>())?;
-                    writer
-                        .finish()
-                        .context("failed to write core records to stdout")
+                    writer.finish().context("Failed to write JSON")
                 }
                 SqlOutputFormat::IPC => {
                     let schema = df.schema().as_arrow();
                     // create a new writer, the schema must be known in advance
                     let mut writer = StreamWriter::try_new(io::stdout(), schema)?;
-                    for record in records{
-                        writer.write(&record).context("Failed to write an ipc batch")?;
+                    for record in records {
+                        writer
+                            .write(&record)
+                            .context("Failed to write an IPC batch")?;
                     }
-                    writer.finish().context("Failed to write ipc")
+                    writer.finish().context("Failed to write IPC")
                 }
             }
         }
@@ -84,7 +84,7 @@ pub async fn handle_sql(sql_command: SqlArgs) -> anyhow::Result<()> {
             location,
             schema_table,
             query,
-            format
+            format,
         }) => {
             let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
                 IcebergAsset::builder()
@@ -98,18 +98,18 @@ pub async fn handle_sql(sql_command: SqlArgs) -> anyhow::Result<()> {
                 SqlOutputFormat::JSON => {
                     let mut writer = ArrayWriter::new(io::stdout());
                     writer.write_batches(&records.iter().collect::<Vec<_>>())?;
-                    writer
-                        .finish()
-                        .context("failed to write core records to stdout")
+                    writer.finish().context("Failed to write JSON")
                 }
                 SqlOutputFormat::IPC => {
                     let schema = df.schema().as_arrow();
                     // create a new writer, the schema must be known in advance
                     let mut writer = StreamWriter::try_new(io::stdout(), schema)?;
-                    for record in records{
-                        writer.write(&record).context("Failed to write an ipc batch")?;
+                    for record in records {
+                        writer
+                            .write(&record)
+                            .context("Failed to write an IPC batch")?;
                     }
-                    writer.finish().context("Failed to write ipc")
+                    writer.finish().context("Failed to write IPC")
                 }
             }
         }
