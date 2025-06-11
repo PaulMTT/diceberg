@@ -1,13 +1,12 @@
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::client::base::DicebergClient;
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
+use crate::cli::info::table::schema::{SchemaCoreArgs, SchemaIcebergArgs};
 use anyhow::Context;
 use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
-pub enum SnapshotArgs {
+pub enum SnapshotCommand {
     /// Using core fxf identifier
     Core(SnapshotCoreArgs),
     /// Using iceberg identifier
@@ -15,28 +14,34 @@ pub enum SnapshotArgs {
 }
 
 #[derive(Args)]
-pub struct SnapshotCoreArgs {
-    /// The core four-by-four
-    pub fxf: String,
+pub struct SnapshotArgs {
     /// The snapshot number
     pub snapshot: i64,
 }
 
 #[derive(Args)]
-pub struct SnapshotIcebergArgs {
-    /// The iceberg location
-    pub location: String,
-    /// The iceberg schema-table
-    pub schema_table: String,
-    /// The snapshot number
-    pub snapshot: i64,
+pub struct SnapshotCoreArgs {
+    #[clap(flatten)]
+    pub core: SchemaCoreArgs,
+    #[clap(flatten)]
+    pub snapshot: SnapshotArgs,
 }
 
-pub async fn handle_info_table_snapshot(asset: SnapshotArgs) -> anyhow::Result<()> {
+#[derive(Args)]
+pub struct SnapshotIcebergArgs {
+    #[clap(flatten)]
+    pub iceberg: SchemaIcebergArgs,
+    #[clap(flatten)]
+    pub snapshot: SnapshotArgs,
+}
+
+pub async fn handle_info_table_snapshot(asset: SnapshotCommand) -> anyhow::Result<()> {
     match asset {
-        SnapshotArgs::Core(SnapshotCoreArgs { fxf, snapshot }) => {
-            let asset: DicebergCoreAsset =
-                DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
+        SnapshotCommand::Core(SnapshotCoreArgs {
+            core,
+            snapshot: SnapshotArgs { snapshot },
+        }) => {
+            let asset: DicebergCoreAsset = core.into();
             let table = asset.table().await?;
             let snapshot = table
                 .metadata()
@@ -45,17 +50,11 @@ pub async fn handle_info_table_snapshot(asset: SnapshotArgs) -> anyhow::Result<(
             serde_json::to_writer_pretty(std::io::stdout(), snapshot)
                 .context("failed to serialize core snapshot")
         }
-        SnapshotArgs::Iceberg(SnapshotIcebergArgs {
-            location,
-            schema_table,
-            snapshot,
+        SnapshotCommand::Iceberg(SnapshotIcebergArgs {
+            iceberg,
+            snapshot: SnapshotArgs { snapshot },
         }) => {
-            let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
-                IcebergAsset::builder()
-                    .location(location)
-                    .schema_table(schema_table)
-                    .build(),
-            );
+            let asset: DicebergIcebergAsset = iceberg.into();
             let table = asset.table().await?;
             let snapshot = table
                 .metadata()

@@ -20,6 +20,12 @@ pub struct SchemaCoreArgs {
     pub fxf: String,
 }
 
+impl Into<DicebergCoreAsset> for SchemaCoreArgs {
+    fn into(self) -> DicebergCoreAsset {
+        DicebergClient::default().core(CoreAsset::builder().fxf(self.fxf).build())
+    }
+}
+
 #[derive(Args)]
 pub struct SchemaIcebergArgs {
     /// The iceberg location
@@ -28,23 +34,25 @@ pub struct SchemaIcebergArgs {
     pub schema_table: String,
 }
 
+impl Into<DicebergIcebergAsset> for SchemaIcebergArgs {
+    fn into(self) -> DicebergIcebergAsset {
+        DicebergClient::default().iceberg(
+            IcebergAsset::builder()
+                .location(self.location)
+                .schema_table(self.schema_table)
+                .build(),
+        )
+    }
+}
+
 pub async fn handle_info_table_schema(asset: SchemaArgs) -> anyhow::Result<()> {
     let fields = match asset {
-        SchemaArgs::Core(SchemaCoreArgs { fxf }) => {
-            let asset: DicebergCoreAsset =
-                DicebergClient::default().core(CoreAsset::builder().fxf(fxf).build());
+        SchemaArgs::Core(args) => {
+            let asset: DicebergCoreAsset = args.into();
             asset.schema().await?
         }
-        SchemaArgs::Iceberg(SchemaIcebergArgs {
-            location,
-            schema_table,
-        }) => {
-            let asset: DicebergIcebergAsset = DicebergClient::default().iceberg(
-                IcebergAsset::builder()
-                    .location(location)
-                    .schema_table(schema_table)
-                    .build(),
-            );
+        SchemaArgs::Iceberg(args) => {
+            let asset: DicebergIcebergAsset = args.into();
             asset.schema().await?
         }
     };

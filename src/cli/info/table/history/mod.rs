@@ -2,7 +2,7 @@ use crate::cli::info::table::history::all::handle_info_table_history_all;
 use crate::cli::info::table::history::snapshot::handle_info_table_snapshot;
 use crate::cli::info::table::schema::SchemaArgs;
 use clap::Subcommand;
-use snapshot::SnapshotArgs;
+use snapshot::SnapshotCommand;
 
 mod all;
 pub mod snapshot;
@@ -14,7 +14,7 @@ pub enum HistoryCommand {
     All(SchemaArgs),
     /// Get details of a specific snapshot
     #[clap(subcommand)]
-    Snapshot(SnapshotArgs),
+    Snapshot(SnapshotCommand),
 }
 
 pub async fn handle_info_table_history(history: HistoryCommand) -> anyhow::Result<()> {

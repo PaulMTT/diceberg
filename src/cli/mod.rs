@@ -1,5 +1,5 @@
 use crate::cli::info::{handle_info, InfoCommand};
-use crate::cli::sql::{handle_sql, SqlArgs};
+use crate::cli::sql::{handle_sql, SqlCommand};
 use crate::cli::util::{handle_util, UtilCommand};
 use clap::{Parser, Subcommand};
 
@@ -22,7 +22,7 @@ pub enum Commands {
     Info(InfoCommand),
     /// Execute sql against a DICI asset
     #[clap(subcommand)]
-    Sql(SqlArgs),
+    Sql(SqlCommand),
     /// Various utilities and helpers
     #[clap(subcommand)]
     Util(UtilCommand),
