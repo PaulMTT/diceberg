@@ -102,7 +102,6 @@ pub async fn handle_sql(sql_command: SqlArgs) -> anyhow::Result<()> {
                 }
                 SqlOutputFormat::IPC => {
                     let schema = df.schema().as_arrow();
-                    // create a new writer, the schema must be known in advance
                     let mut writer = StreamWriter::try_new(io::stdout(), schema)?;
                     for record in records {
                         writer
