@@ -19,15 +19,12 @@ pub struct IpcQueryArgs {
 }
 
 pub async fn handle_util_ipc_query(ipc_query_args: IpcQueryArgs) -> anyhow::Result<()> {
-    let mut frames = Vec::new();
+    let ctx = SessionContext::new();
     let reader = StreamReader::try_new(io::stdin(), None)?;
     let schema = reader.schema();
-    for batch in reader {
-        let batch = batch?;
-        frames.push(batch);
-    }
-    let mem_table = MemTable::try_new(schema, vec![frames])?;
-    let ctx = SessionContext::new();
+    let records: Vec<arrow::array::RecordBatch> =
+        reader.collect::<arrow::error::Result<Vec<_>>>()?;
+    let mem_table = MemTable::try_new(schema, vec![records])?;
     ctx.register_table("this", Arc::new(mem_table))?;
     match ipc_query_args {
         IpcQueryArgs { query, format } => {
