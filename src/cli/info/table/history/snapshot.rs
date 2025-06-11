@@ -1,7 +1,7 @@
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
-use crate::cli::info::table::schema::{SchemaCoreArgs, SchemaIcebergArgs};
+use crate::cli::info::table::schema::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::Context;
 use clap::{Args, Subcommand};
 
@@ -22,7 +22,7 @@ pub struct SnapshotArgs {
 #[derive(Args)]
 pub struct SnapshotCoreArgs {
     #[clap(flatten)]
-    pub core: SchemaCoreArgs,
+    pub core: CoreAssetArgs,
     #[clap(flatten)]
     pub snapshot: SnapshotArgs,
 }
@@ -30,7 +30,7 @@ pub struct SnapshotCoreArgs {
 #[derive(Args)]
 pub struct SnapshotIcebergArgs {
     #[clap(flatten)]
-    pub iceberg: SchemaIcebergArgs,
+    pub iceberg: IcebergAssetArgs,
     #[clap(flatten)]
     pub snapshot: SnapshotArgs,
 }

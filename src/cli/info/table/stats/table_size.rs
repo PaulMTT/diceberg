@@ -1,17 +1,17 @@
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::TableSource;
-use crate::cli::info::table::schema::SchemaArgs;
+use crate::cli::info::table::schema::AssetArgs;
 use anyhow::Context;
 use serde_json::json;
 
-pub async fn handle_info_table_stats_data_size(asset: SchemaArgs) -> anyhow::Result<()> {
+pub async fn handle_info_table_stats_data_size(asset: AssetArgs) -> anyhow::Result<()> {
     let table = match asset {
-        SchemaArgs::Core(args) => {
+        AssetArgs::Core(args) => {
             let asset: DicebergCoreAsset = args.into();
             asset.table().await?
         }
-        SchemaArgs::Iceberg(args) => {
+        AssetArgs::Iceberg(args) => {
             let asset: DicebergIcebergAsset = args.into();
             asset.table().await?
         }

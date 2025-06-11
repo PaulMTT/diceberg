@@ -1,7 +1,7 @@
 use crate::api::client::core_scope::DicebergCoreAsset;
 use crate::api::client::iceberg_scope::DicebergIcebergAsset;
 use crate::api::traits::SqlAble;
-use crate::cli::info::table::schema::{SchemaCoreArgs, SchemaIcebergArgs};
+use crate::cli::info::table::schema::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::Context;
 use arrow::array::RecordBatch;
 use arrow_ipc::writer::StreamWriter;
@@ -31,7 +31,7 @@ pub struct SqlArgs {
 #[derive(Args)]
 pub struct SqlCoreArgs {
     #[clap(flatten)]
-    pub core: SchemaCoreArgs,
+    pub core: CoreAssetArgs,
     #[clap(flatten)]
     pub sql: SqlArgs,
 }
@@ -39,7 +39,7 @@ pub struct SqlCoreArgs {
 #[derive(Args)]
 pub struct SqlIcebergArgs {
     #[clap(flatten)]
-    pub iceberg: SchemaIcebergArgs,
+    pub iceberg: IcebergAssetArgs,
     #[clap(flatten)]
     pub sql: SqlArgs,
 }

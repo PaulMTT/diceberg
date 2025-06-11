@@ -1,6 +1,6 @@
 use crate::cli::info::table::history::all::handle_info_table_history_all;
 use crate::cli::info::table::history::snapshot::handle_info_table_snapshot;
-use crate::cli::info::table::schema::SchemaArgs;
+use crate::cli::info::table::schema::AssetArgs;
 use clap::Subcommand;
 use snapshot::SnapshotCommand;
 
@@ -11,7 +11,7 @@ pub mod snapshot;
 pub enum HistoryCommand {
     /// List all snapshots
     #[clap(subcommand)]
-    All(SchemaArgs),
+    All(AssetArgs),
     /// Get details of a specific snapshot
     #[clap(subcommand)]
     Snapshot(SnapshotCommand),

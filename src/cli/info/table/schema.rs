@@ -7,34 +7,34 @@ use anyhow::Context;
 use clap::{Args, Subcommand};
 
 #[derive(Subcommand)]
-pub enum SchemaArgs {
+pub enum AssetArgs {
     /// Using core fxf identifier
-    Core(SchemaCoreArgs),
+    Core(CoreAssetArgs),
     /// Using iceberg identifier
-    Iceberg(SchemaIcebergArgs),
+    Iceberg(IcebergAssetArgs),
 }
 
 #[derive(Args)]
-pub struct SchemaCoreArgs {
+pub struct CoreAssetArgs {
     /// The core four-by-four
     pub fxf: String,
 }
 
-impl Into<DicebergCoreAsset> for SchemaCoreArgs {
+impl Into<DicebergCoreAsset> for CoreAssetArgs {
     fn into(self) -> DicebergCoreAsset {
         DicebergClient::default().core(CoreAsset::builder().fxf(self.fxf).build())
     }
 }
 
 #[derive(Args)]
-pub struct SchemaIcebergArgs {
+pub struct IcebergAssetArgs {
     /// The iceberg location
     pub location: String,
     /// The iceberg schema-table
     pub schema_table: String,
 }
 
-impl Into<DicebergIcebergAsset> for SchemaIcebergArgs {
+impl Into<DicebergIcebergAsset> for IcebergAssetArgs {
     fn into(self) -> DicebergIcebergAsset {
         DicebergClient::default().iceberg(
             IcebergAsset::builder()
@@ -45,13 +45,13 @@ impl Into<DicebergIcebergAsset> for SchemaIcebergArgs {
     }
 }
 
-pub async fn handle_info_table_schema(asset: SchemaArgs) -> anyhow::Result<()> {
+pub async fn handle_info_table_schema(asset: AssetArgs) -> anyhow::Result<()> {
     let fields = match asset {
-        SchemaArgs::Core(args) => {
+        AssetArgs::Core(args) => {
             let asset: DicebergCoreAsset = args.into();
             asset.schema().await?
         }
-        SchemaArgs::Iceberg(args) => {
+        AssetArgs::Iceberg(args) => {
             let asset: DicebergIcebergAsset = args.into();
             asset.schema().await?
         }

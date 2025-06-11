@@ -1,6 +1,6 @@
 use crate::cli::info::table::history::{handle_info_table_history, HistoryCommand};
 use crate::cli::info::table::partition::handle_info_table_partition;
-use crate::cli::info::table::schema::{handle_info_table_schema, SchemaArgs};
+use crate::cli::info::table::schema::{handle_info_table_schema, AssetArgs};
 use crate::cli::info::table::stats::{handle_info_table_stats, StatsCommand};
 use clap::Subcommand;
 
@@ -13,10 +13,10 @@ pub mod stats;
 pub enum InfoTableCommand {
     /// The schema of the table
     #[clap(subcommand)]
-    Schema(SchemaArgs),
+    Schema(AssetArgs),
     /// The partitions used in the table
     #[clap(subcommand)]
-    Partition(SchemaArgs),
+    Partition(AssetArgs),
     /// The table history
     #[clap(subcommand)]
     History(HistoryCommand),
