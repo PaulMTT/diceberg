@@ -1,7 +1,7 @@
 use crate::api::client::DiciAsset;
 use crate::api::traits::SqlAble;
 use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
-use anyhow::Context;
+use anyhow::{Context, Result};
 use arrow::array::RecordBatch;
 use arrow_ipc::writer::StreamWriter;
 use arrow_json::ArrayWriter;
@@ -50,7 +50,7 @@ pub enum SqlOutputFormat {
 }
 
 impl SqlOutputFormat {
-    pub async fn to_writer<W: Write>(&self, writer: W, df: DataFrame) -> anyhow::Result<()> {
+    pub async fn to_writer<W: Write>(&self, writer: W, df: DataFrame) -> Result<()> {
         let records: Vec<RecordBatch> = df.clone().collect().await?;
         match self {
             SqlOutputFormat::JSON => {
@@ -78,7 +78,7 @@ impl Default for SqlOutputFormat {
     }
 }
 
-pub async fn handle_sql(sql_command: SqlCommand) -> anyhow::Result<()> {
+pub async fn handle_sql(sql_command: SqlCommand) -> Result<()> {
     let (asset, query, format): (DiciAsset, String, SqlOutputFormat) = match sql_command {
         SqlCommand::Core(SqlCoreArgs {
             core,

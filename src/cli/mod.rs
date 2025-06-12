@@ -1,6 +1,7 @@
 use crate::cli::info::{handle_info, InfoCommand};
 use crate::cli::sql::{handle_sql, SqlCommand};
 use crate::cli::util::{handle_util, UtilCommand};
+use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 pub mod info;
@@ -29,7 +30,7 @@ pub enum Commands {
 }
 
 impl DiciCli {
-    pub async fn run(self) -> anyhow::Result<()> {
+    pub async fn run(self) -> Result<()> {
         match self.command {
             Commands::Info(args) => handle_info(args).await,
             Commands::Sql(args) => handle_sql(args).await,

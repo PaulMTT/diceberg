@@ -1,4 +1,5 @@
 use crate::cli::sql::SqlOutputFormat;
+use anyhow::Result;
 use arrow_ipc::reader::StreamReader;
 use clap::Args;
 use datafusion::catalog::MemTable;
@@ -15,7 +16,7 @@ pub struct IpcQueryArgs {
     pub format: SqlOutputFormat,
 }
 
-pub async fn handle_util_ipc_query(ipc_query_args: IpcQueryArgs) -> anyhow::Result<()> {
+pub async fn handle_util_ipc_query(ipc_query_args: IpcQueryArgs) -> Result<()> {
     let ctx = SessionContext::new();
     let reader = StreamReader::try_new(io::stdin(), None)?;
     let schema = reader.schema();

@@ -1,5 +1,6 @@
 pub mod inventory;
 pub mod registration;
+use anyhow::Result;
 
 use crate::cli::info::lookup::inventory::{handle_lookup_inventory, InventoryLookupCommand};
 use crate::cli::info::lookup::registration::{
@@ -17,7 +18,7 @@ pub enum InfoLookupCommand {
     Inventory(InventoryLookupCommand),
 }
 
-pub async fn handle_lookup(info_lookup_command: InfoLookupCommand) -> anyhow::Result<()> {
+pub async fn handle_lookup(info_lookup_command: InfoLookupCommand) -> Result<()> {
     match info_lookup_command {
         InfoLookupCommand::Registration(args) => handle_lookup_registration(args).await,
         InfoLookupCommand::Inventory(args) => handle_lookup_inventory(args).await,

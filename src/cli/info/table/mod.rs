@@ -5,6 +5,7 @@ use crate::cli::info::table::history::{handle_info_table_history, HistoryCommand
 use crate::cli::info::table::partition::handle_info_table_partition;
 use crate::cli::info::table::schema::handle_info_table_schema;
 use crate::cli::info::table::stats::{handle_info_table_stats, StatsCommand};
+use anyhow::Result;
 use clap::{Args, Subcommand};
 
 pub mod history;
@@ -72,7 +73,7 @@ impl Into<DiciAsset> for IcebergAssetArgs {
     }
 }
 
-pub async fn handle_info_table(info_table_command: InfoTableCommand) -> anyhow::Result<()> {
+pub async fn handle_info_table(info_table_command: InfoTableCommand) -> Result<()> {
     match info_table_command {
         InfoTableCommand::Schema(args) => handle_info_table_schema(args).await,
         InfoTableCommand::Partition(args) => handle_info_table_partition(args).await,
