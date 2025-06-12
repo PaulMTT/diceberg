@@ -1,7 +1,6 @@
 use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::client::base::DicebergClient;
-use crate::api::client::core_scope::DicebergCoreAsset;
-use crate::api::client::iceberg_scope::DicebergIcebergAsset;
+use crate::api::client::{DiciAsset, DiciClient};
+use crate::api::management::client::ManagementClient;
 use crate::cli::info::table::history::{handle_info_table_history, HistoryCommand};
 use crate::cli::info::table::partition::handle_info_table_partition;
 use crate::cli::info::table::schema::handle_info_table_schema;
@@ -43,9 +42,13 @@ pub struct CoreAssetArgs {
     pub fxf: String,
 }
 
-impl Into<DicebergCoreAsset> for CoreAssetArgs {
-    fn into(self) -> DicebergCoreAsset {
-        DicebergClient::default().core(CoreAsset::builder().fxf(self.fxf).build())
+impl Into<DiciAsset> for CoreAssetArgs {
+    fn into(self) -> DiciAsset {
+        DiciAsset::Core {
+            asset: CoreAsset::builder().fxf(self.fxf).build(),
+            dici_client: DiciClient::default(),
+            management_client: ManagementClient::default(),
+        }
     }
 }
 
@@ -57,14 +60,15 @@ pub struct IcebergAssetArgs {
     pub schema_table: String,
 }
 
-impl Into<DicebergIcebergAsset> for IcebergAssetArgs {
-    fn into(self) -> DicebergIcebergAsset {
-        DicebergClient::default().iceberg(
-            IcebergAsset::builder()
+impl Into<DiciAsset> for IcebergAssetArgs {
+    fn into(self) -> DiciAsset {
+        DiciAsset::Iceberg {
+            asset: IcebergAsset::builder()
                 .location(self.location)
                 .schema_table(self.schema_table)
                 .build(),
-        )
+            client: DiciClient::default(),
+        }
     }
 }
 

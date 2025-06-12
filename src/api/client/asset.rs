@@ -1,15 +1,19 @@
 use typed_builder::TypedBuilder;
 
+pub type CoreFxf = String;
+pub type IcebergLocation = String;
+pub type IcebergSchemaTable = String;
+
 #[derive(TypedBuilder, Clone)]
 pub struct CoreAsset {
     #[builder(setter(into))]
-    pub fxf: String,
+    pub fxf: CoreFxf,
 }
 
 #[derive(TypedBuilder, Clone)]
 pub struct IcebergAsset {
     #[builder(setter(into))]
-    pub location: String,
+    pub location: IcebergLocation,
     #[builder(setter(into))]
-    pub schema_table: String,
+    pub schema_table: IcebergSchemaTable,
 }

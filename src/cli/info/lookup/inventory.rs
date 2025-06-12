@@ -1,4 +1,4 @@
-use crate::api::management::client::DiciManagementClient;
+use crate::api::management::client::ManagementClient;
 use anyhow::Context;
 use clap::{Args, Subcommand};
 
@@ -27,7 +27,7 @@ pub struct IcebergArgs {
 pub async fn handle_lookup_inventory(
     inventory_lookup_command: InventoryLookupCommand,
 ) -> anyhow::Result<()> {
-    let dici_management_client = DiciManagementClient::default();
+    let dici_management_client = ManagementClient::default();
     match inventory_lookup_command {
         InventoryLookupCommand::All => {
             let inventories = dici_management_client.fetch_inventories().await?;

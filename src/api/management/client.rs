@@ -16,24 +16,38 @@ fn default_management_address() -> String {
         .unwrap()
 }
 
+pub type ManagementAddress = String;
+
 #[derive(TypedBuilder, Clone)]
-pub struct DiciManagementClient {
-    #[builder(default)]
-    http_client: Client,
+pub struct ManagementConfig {
     #[builder(default = default_management_address(), setter(into))]
-    management_address: String,
+    address: ManagementAddress,
 }
 
-impl Default for DiciManagementClient {
+impl Default for ManagementConfig {
     fn default() -> Self {
         Self::builder().build()
     }
 }
 
-impl DiciManagementClient {
+#[derive(TypedBuilder, Clone)]
+pub struct ManagementClient {
+    #[builder(default)]
+    http_client: Client,
+    #[builder(default)]
+    config: ManagementConfig,
+}
+
+impl Default for ManagementClient {
+    fn default() -> Self {
+        Self::builder().build()
+    }
+}
+
+impl ManagementClient {
     pub async fn fetch_inventories(&self) -> Result<Vec<Inventory>> {
         self.http_client
-            .get(format!("{}/inventory", self.management_address.clone(),))
+            .get(format!("{}/inventory", self.config.address))
             .send()
             .await
             .context("Request to dici management failed")?
@@ -45,11 +59,7 @@ impl DiciManagementClient {
     pub async fn fetch_inventory_by_fxf(&self, fxf: String) -> Result<Inventory> {
         let response = self
             .http_client
-            .get(format!(
-                "{}/inventory/fxf/{}",
-                self.management_address.clone(),
-                fxf
-            ))
+            .get(format!("{}/inventory/fxf/{}", self.config.address, fxf))
             .send()
             .await
             .context("Request to dici management failed")?;
@@ -72,8 +82,7 @@ impl DiciManagementClient {
             .http_client
             .get(format!(
                 "{}/inventory/iceberg/{}",
-                self.management_address.clone(),
-                iceberg_location
+                self.config.address, iceberg_location
             ))
             .send()
             .await
@@ -91,7 +100,7 @@ impl DiciManagementClient {
 
     pub async fn fetch_registrations(&self) -> Result<Vec<Registration>> {
         self.http_client
-            .get(format!("{}/registration", self.management_address.clone()))
+            .get(format!("{}/registration", self.config.address))
             .send()
             .await
             .context("Request to dici management failed")?
@@ -103,11 +112,7 @@ impl DiciManagementClient {
     pub async fn fetch_registrations_by_path(&self, path: String) -> Result<Vec<Registration>> {
         let response = self
             .http_client
-            .get(format!(
-                "{}/registration/{}",
-                self.management_address.clone(),
-                path
-            ))
+            .get(format!("{}/registration/{}", self.config.address, path))
             .send()
             .await
             .context("Request to dici management failed")?;
@@ -129,7 +134,7 @@ impl DiciManagementClient {
     ) -> Result<Vec<Registration>> {
         let response = self
             .http_client
-            .post(format!("{}/query/{}", self.management_address, path))
+            .post(format!("{}/query/{}", self.config.address, path))
             .json(&metadata)
             .send()
             .await

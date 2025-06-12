@@ -1,5 +1,4 @@
-use crate::api::client::core_scope::DicebergCoreAsset;
-use crate::api::client::iceberg_scope::DicebergIcebergAsset;
+use crate::api::client::DiciAsset;
 use crate::api::traits::TableSource;
 use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::Context;
@@ -36,32 +35,21 @@ pub struct SnapshotIcebergArgs {
 }
 
 pub async fn handle_info_table_snapshot(snapshot_command: SnapshotCommand) -> anyhow::Result<()> {
-    match snapshot_command {
+    let (asset, snapshot): (DiciAsset, i64) = match snapshot_command {
         SnapshotCommand::Core(SnapshotCoreArgs {
             core,
             snapshot: SnapshotArgs { snapshot },
-        }) => {
-            let asset: DicebergCoreAsset = core.into();
-            let table = asset.table().await?;
-            let snapshot = table
-                .metadata()
-                .snapshot_by_id(snapshot)
-                .context("Failed to find the snapshot by id")?;
-            serde_json::to_writer_pretty(std::io::stdout(), snapshot)
-                .context("failed to serialize core snapshot")
-        }
+        }) => (core.into(), snapshot),
         SnapshotCommand::Iceberg(SnapshotIcebergArgs {
             iceberg,
             snapshot: SnapshotArgs { snapshot },
-        }) => {
-            let asset: DicebergIcebergAsset = iceberg.into();
-            let table = asset.table().await?;
-            let snapshot = table
-                .metadata()
-                .snapshot_by_id(snapshot)
-                .context("Failed to find the snapshot by id")?;
-            serde_json::to_writer_pretty(std::io::stdout(), snapshot)
-                .context("failed to serialize iceberg snapshot")
-        }
-    }
+        }) => (iceberg.into(), snapshot),
+    };
+    let table = asset.table().await?;
+    let snapshot = table
+        .metadata()
+        .snapshot_by_id(snapshot)
+        .context("Failed to find the snapshot by id")?;
+    serde_json::to_writer_pretty(std::io::stdout(), snapshot)
+        .context("failed to serialize core snapshot")
 }

@@ -1,5 +1,4 @@
-use crate::api::client::core_scope::DicebergCoreAsset;
-use crate::api::client::iceberg_scope::DicebergIcebergAsset;
+use crate::api::client::DiciAsset;
 use crate::api::traits::SqlAble;
 use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::Context;
@@ -80,22 +79,16 @@ impl Default for SqlOutputFormat {
 }
 
 pub async fn handle_sql(sql_command: SqlCommand) -> anyhow::Result<()> {
-    match sql_command {
+    let (asset, query, format): (DiciAsset, String, SqlOutputFormat) = match sql_command {
         SqlCommand::Core(SqlCoreArgs {
             core,
             sql: SqlArgs { query, format },
-        }) => {
-            let asset: DicebergCoreAsset = core.into();
-            let df = asset.sql(query.as_str()).await?;
-            format.to_writer(io::stdout(), df).await
-        }
+        }) => (core.into(), query, format),
         SqlCommand::Iceberg(SqlIcebergArgs {
             iceberg,
             sql: SqlArgs { query, format },
-        }) => {
-            let asset: DicebergIcebergAsset = iceberg.into();
-            let df = asset.sql(query.as_str()).await?;
-            format.to_writer(io::stdout(), df).await
-        }
-    }
+        }) => (iceberg.into(), query, format),
+    };
+    let df = asset.sql(query.as_str()).await?;
+    format.to_writer(io::stdout(), df).await
 }

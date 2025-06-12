@@ -1,4 +1,4 @@
-use crate::api::management::client::DiciManagementClient;
+use crate::api::management::client::ManagementClient;
 use anyhow::Context;
 use clap::{Args, Subcommand};
 use std::collections::HashMap;
@@ -29,7 +29,7 @@ pub struct PathArgs {
 pub async fn handle_lookup_registration(
     registration_lookup_command: RegistrationLookupCommand,
 ) -> anyhow::Result<()> {
-    let dici_management_client = DiciManagementClient::default();
+    let dici_management_client = ManagementClient::default();
     let registrations = match registration_lookup_command {
         RegistrationLookupCommand::All => dici_management_client.fetch_registrations().await?,
         RegistrationLookupCommand::Path(args) => {

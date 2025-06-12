@@ -1,4 +1,4 @@
-use crate::api::client::base::DicebergClient;
+use crate::api::client::DiciClient;
 use anyhow::{Context, Result};
 use datafusion::common::TableReference;
 use datafusion::dataframe::DataFrame;
@@ -11,7 +11,7 @@ use iceberg_datafusion::IcebergTableProvider;
 use std::sync::Arc;
 
 pub trait ClientSource {
-    fn client(&self) -> &DicebergClient;
+    fn client(&self) -> &DiciClient;
 }
 
 pub trait CatalogSource {
