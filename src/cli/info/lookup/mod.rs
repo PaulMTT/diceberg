@@ -8,7 +8,7 @@ use crate::cli::info::lookup::registration::{
 };
 use clap::Subcommand;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum InfoLookupCommand {
     /// Find registrations
     #[clap(subcommand)]

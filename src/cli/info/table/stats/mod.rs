@@ -7,7 +7,7 @@ use crate::cli::info::table::AssetArgs;
 use anyhow::Result;
 use clap::Subcommand;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum StatsCommand {
     /// The size of the metadata files
     #[clap(subcommand)]

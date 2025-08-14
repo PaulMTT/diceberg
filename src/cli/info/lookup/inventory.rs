@@ -2,7 +2,7 @@ use crate::api::management::client::ManagementClient;
 use anyhow::Context;
 use clap::{Args, Subcommand};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum InventoryLookupCommand {
     /// All inventories
     All,
@@ -12,13 +12,13 @@ pub enum InventoryLookupCommand {
     Iceberg(IcebergArgs),
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct FxfArgs {
     /// A core four-by-four identifier
     fxf: String,
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct IcebergArgs {
     /// An iceberg location
     location: String,

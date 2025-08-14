@@ -8,7 +8,7 @@ use snapshot::SnapshotCommand;
 mod all;
 pub mod snapshot;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum HistoryCommand {
     /// List all snapshots
     #[clap(subcommand)]

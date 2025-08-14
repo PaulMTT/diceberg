@@ -3,7 +3,7 @@ use anyhow::Context;
 use clap::{Args, Subcommand};
 use std::collections::HashMap;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum RegistrationLookupCommand {
     /// All registrations
     All,
@@ -12,7 +12,7 @@ pub enum RegistrationLookupCommand {
     /// Registrations that are within a path and filtered by metadata key-value
     Filtered(MetadataArgs),
 }
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct MetadataArgs {
     /// The s3 path of the registration
     path: String,
@@ -20,7 +20,7 @@ pub struct MetadataArgs {
     pairs: Vec<String>,
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct PathArgs {
     /// The s3 path of the registration
     path: String,

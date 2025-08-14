@@ -44,6 +44,8 @@ The management address is only needed if querying via a core fxf, this also requ
 - JSON or IPC(arrow format) sql output format
 - IPC print utility
 - Execute sql against dataframes(IPC) input to stdin
+- MCP server
+- Embedded local LLM chat with Ratatui terminal UI
 
 ## Demo
 
@@ -270,4 +272,12 @@ shape: (1, 15)
 ╞════════════╪══════════╪══════════════════╪════════════════╪═══╪════════════╪═══════════════════╪════════════════════╪════════════════════╡
 │ AARON HAAR ┆ 383000   ┆ 581 WHITE AVENUE ┆                ┆ … ┆ 2025       ┆ null              ┆ null               ┆ null               │
 └────────────┴──────────┴──────────────────┴────────────────┴───┴────────────┴───────────────────┴────────────────────┴────────────────────┘
+```
+
+## AI
+You will need to install xcode from the app store on macos for the metal kernel drivers.
+After that you should be able to `cargo install --path .`
+and then run 
+```shell
+dici ai
 ```

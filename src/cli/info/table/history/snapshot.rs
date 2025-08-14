@@ -4,7 +4,7 @@ use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum SnapshotCommand {
     /// Using core fxf identifier
     Core(SnapshotCoreArgs),
@@ -12,13 +12,13 @@ pub enum SnapshotCommand {
     Iceberg(SnapshotIcebergArgs),
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct SnapshotArgs {
     /// The snapshot number
     pub snapshot: i64,
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct SnapshotCoreArgs {
     #[clap(flatten)]
     pub core: CoreAssetArgs,
@@ -26,7 +26,7 @@ pub struct SnapshotCoreArgs {
     pub snapshot: SnapshotArgs,
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct SnapshotIcebergArgs {
     #[clap(flatten)]
     pub iceberg: IcebergAssetArgs,

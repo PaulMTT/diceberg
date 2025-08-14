@@ -4,7 +4,7 @@ use crate::cli::util::ipc::{handle_util_ipc, IpcCommand};
 use anyhow::Result;
 use clap::Subcommand;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum UtilCommand {
     /// Arrow IPC utilities
     #[clap(subcommand)]

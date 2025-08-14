@@ -7,7 +7,7 @@ use datafusion::prelude::SessionContext;
 use std::io;
 use std::sync::Arc;
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct IpcQueryArgs {
     /// The sql query, the table identifier is 'this'
     pub query: String,

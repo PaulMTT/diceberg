@@ -13,7 +13,7 @@ pub mod partition;
 pub mod schema;
 pub mod stats;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum InfoTableCommand {
     /// The schema of the table
     #[clap(subcommand)]
@@ -29,7 +29,7 @@ pub enum InfoTableCommand {
     Stats(StatsCommand),
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum AssetArgs {
     /// Using core fxf identifier
     Core(CoreAssetArgs),
@@ -37,7 +37,7 @@ pub enum AssetArgs {
     Iceberg(IcebergAssetArgs),
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct CoreAssetArgs {
     /// The core four-by-four
     pub fxf: String,
@@ -53,7 +53,7 @@ impl Into<DiciAsset> for CoreAssetArgs {
     }
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct IcebergAssetArgs {
     /// The iceberg location
     pub location: String,

@@ -10,7 +10,7 @@ use datafusion::prelude::DataFrame;
 use std::io;
 use std::io::Write;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum SqlCommand {
     /// Using the core fxf identifier
     Core(SqlCoreArgs),
@@ -18,7 +18,7 @@ pub enum SqlCommand {
     Iceberg(SqlIcebergArgs),
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct SqlArgs {
     /// The sql statement
     pub query: String,
@@ -27,7 +27,7 @@ pub struct SqlArgs {
     pub format: SqlOutputFormat,
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct SqlCoreArgs {
     #[clap(flatten)]
     pub core: CoreAssetArgs,
@@ -35,7 +35,7 @@ pub struct SqlCoreArgs {
     pub sql: SqlArgs,
 }
 
-#[derive(Args)]
+#[derive(Args, Clone)]
 pub struct SqlIcebergArgs {
     #[clap(flatten)]
     pub iceberg: IcebergAssetArgs,

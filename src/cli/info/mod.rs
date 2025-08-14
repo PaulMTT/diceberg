@@ -6,7 +6,7 @@ use clap::Subcommand;
 pub mod lookup;
 pub mod table;
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum InfoCommand {
     /// Table level information
     #[clap(subcommand)]
