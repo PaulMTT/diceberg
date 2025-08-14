@@ -4,5 +4,5 @@ use diceberg::cli::DiciCli;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    Ok(DiciCli::parse().run().await?)
+    DiciCli::parse().run().await
 }
