@@ -21,7 +21,6 @@ pub struct DiciServerHandler {
 
 #[async_trait]
 impl ServerHandler for DiciServerHandler {
-    /// List available tools
     async fn handle_list_tools_request(
         &self,
         _request: ListToolsRequest,
@@ -34,7 +33,6 @@ impl ServerHandler for DiciServerHandler {
         })
     }
 
-    /// Handle call to the DateTime tool
     async fn handle_call_tool_request(
         &self,
         request: CallToolRequest,
