@@ -2,7 +2,7 @@ use crate::api::client::DiciClient;
 use anyhow::{Context, Result};
 use datafusion::common::TableReference;
 use datafusion::dataframe::DataFrame;
-use datafusion::prelude::SessionContext;
+use datafusion::prelude::{SQLOptions, SessionContext};
 use iceberg::spec::NestedFieldRef;
 use iceberg::table::Table;
 use iceberg::{Catalog, TableIdent};
@@ -34,6 +34,12 @@ pub trait TableSource: TableIdentitySource + CatalogSource {
 pub trait SqlAble: TableSource + TableReferenceSource {
     fn context(&self) -> impl Future<Output = Result<SessionContext>>;
     fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;
+
+    fn sql_with_options(
+        &self,
+        sql: &str,
+        options: SQLOptions,
+    ) -> impl Future<Output = Result<DataFrame>>;
 }
 
 impl<T> TableSource for T
@@ -89,6 +95,15 @@ where
             .await
             .context("Failed to get session context")?
             .sql(sql)
+            .await
+            .context("Failed to execute query")
+    }
+
+    async fn sql_with_options(&self, sql: &str, options: SQLOptions) -> Result<DataFrame> {
+        self.context()
+            .await
+            .context("Failed to get session context")?
+            .sql_with_options(sql, options)
             .await
             .context("Failed to execute query")
     }

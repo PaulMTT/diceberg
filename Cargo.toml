@@ -11,7 +11,7 @@ arrow-json = { version = "55.1.0" }
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.39", features = ["derive"] }
 crossterm = "0.29.0"
-datafusion = { version = "47.0.0" }
+datafusion = { version = "47.0.0", features = ["serde"] }
 hf-hub = { version = "0.4.3", default-features = false, features = ["tokio", "native-tls"] } # force native tls so mistral can pull from hugging face hub
 iceberg = { version = "0.5.1", features = ["storage-all"] }
 iceberg-catalog-glue = { version = "0.5.1" }

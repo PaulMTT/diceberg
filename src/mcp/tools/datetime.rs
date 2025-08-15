@@ -8,9 +8,11 @@ use serde_json;
 
 #[mcp_tool(
     name = "get_date_time",
-    title = "Get Current UTC DateTime",
-    description = "Retrieve the current date and time in UTC.\n\n\
-                   Output:\n  - `utc`: ISO-8601 / RFC3339 UTC timestamp.\n  - `epoch_seconds`: integer (seconds since Unix epoch).",
+    title = "Get Current Date/Time (UTC)",
+    description = "Returns the current UTC date and time. \
+Input: none. \
+Output: ISO-8601 UTC timestamp string. \
+Concepts: Useful for timestamp comparisons against Inventory.updated_at, Registration.updated_at, or GitConfig.commit/build times.",
     idempotent_hint = true,
     destructive_hint = false,
     open_world_hint = false,

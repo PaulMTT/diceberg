@@ -6,7 +6,7 @@ use arrow::array::RecordBatch;
 use arrow_ipc::writer::StreamWriter;
 use arrow_json::ArrayWriter;
 use clap::{Args, Subcommand, ValueEnum};
-use datafusion::prelude::DataFrame;
+use datafusion::prelude::{DataFrame, SQLOptions};
 use std::io;
 use std::io::Write;
 
@@ -89,6 +89,10 @@ pub async fn handle_sql(sql_command: SqlCommand) -> Result<()> {
             sql: SqlArgs { query, format },
         }) => (iceberg.into(), query, format),
     };
-    let df = asset.sql(query.as_str()).await?;
+    let options = SQLOptions::new()
+        .with_allow_ddl(false)
+        .with_allow_dml(false)
+        .with_allow_statements(false);
+    let df = asset.sql_with_options(query.as_str(), options).await?;
     format.to_writer(io::stdout(), df).await
 }

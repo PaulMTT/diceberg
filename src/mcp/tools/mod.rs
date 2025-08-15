@@ -6,14 +6,19 @@ use crate::mcp::tools::management::{
     InventoryListUpdatedSince, RegistrationGetByIcebergLocation, RegistrationListByPath,
     RegistrationQueryByPathAndMetadata, VersionGet,
 };
+use crate::mcp::tools::sql::{AssetExecuteSqlByFxf, AssetExecuteSqlByIceberg};
+use arrow::record_batch::RecordBatch;
+use arrow_json::ArrayWriter;
 use rust_mcp_sdk::schema::schema_utils::{CallToolError, SdkError};
 use rust_mcp_sdk::schema::{CallToolResult, TextContent};
 use rust_mcp_sdk::tool_box;
 use serde::Serialize;
+use serde_json::Value;
 
 pub mod asset;
 pub mod datetime;
 pub mod management;
+pub mod sql;
 
 /// Converts any error into a `CallToolError` with a standard internal error shape.
 pub fn into_call_err<E: std::fmt::Display>(e: E) -> CallToolError {
@@ -26,6 +31,19 @@ pub fn json_as_text<T: Serialize>(value: &T) -> Result<CallToolResult, CallToolE
     Ok(CallToolResult::text_content(vec![TextContent::from(
         pretty_json,
     )]))
+}
+
+pub fn record_batches_to_json_values(batches: &[RecordBatch]) -> anyhow::Result<Vec<Value>> {
+    let mut buf = Vec::new();
+    {
+        let mut writer = ArrayWriter::new(&mut buf);
+        for batch in batches {
+            writer.write(batch)?;
+        }
+        writer.finish()?;
+    }
+    let values: Vec<Value> = serde_json::from_slice(&buf)?;
+    Ok(values)
 }
 
 pub trait DiciCallableTool {
@@ -75,6 +93,8 @@ tool_box_with_dispatch!(
         RegistrationQueryByPathAndMetadata,
         VersionGet,
         AssetGetSchemaByFxf,
-        AssetGetSchemaByIceberg
+        AssetGetSchemaByIceberg,
+        AssetExecuteSqlByIceberg,
+        AssetExecuteSqlByFxf
     ]
 );

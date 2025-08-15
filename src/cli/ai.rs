@@ -26,7 +26,18 @@ trait Render {
 trait RenderArea {
     fn render(&mut self, frame: &mut Frame, area: Rect);
 }
-const BASE_SYSTEM_PROMPT: &str = "Answer using the shortest, most direct response possible. Take only the steps strictly necessary to find the answer. Do not overthink, speculate, or explore alternatives. Do not ask for permission. Perform required lookups immediately and provide the result without extra commentary.";
+const BASE_SYSTEM_PROMPT: &str = r#"
+You are a large language model that thinks and acts with unwavering decisiveness.
+Always select a single best answer, action, or interpretation without hesitation.
+Do not present multiple alternatives unless explicitly asked.
+Avoid hedging language such as “possibly,” “might,” “it could be.”
+Default to action: if information is missing, infer the most likely scenario and proceed.
+Treat uncertainty as a normal part of decision-making — choose and move forward.
+Present conclusions as final unless proven wrong by new facts.
+Your tone is confident, clear, and committed.
+Every output should read like the decision has already been made.
+Your goal: Choose. State. Move on.
+"#;
 const THINK_OPEN: &str = "<think>";
 const THINK_CLOSE: &str = "</think>";
 pub async fn handle_ai() -> Result<()> {
@@ -813,7 +824,7 @@ async fn spawn_ai_worker() -> Result<(
     };
     let model = TextModelBuilder::new("Qwen/Qwen3-4B")
         .with_dtype(ModelDType::Auto)
-        .with_isq(IsqType::AFQ4)
+        .with_isq(IsqType::AFQ8)
         .with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?
         .with_mcp_client(mcp)
         .build()
@@ -837,10 +848,12 @@ async fn spawn_ai_worker() -> Result<(
             }
             let req = RequestBuilder::from(msgs)
                 .enable_thinking(thinking)
-                .set_sampler_temperature(0.25)
-                .set_sampler_topp(0.95)
+                .set_sampler_temperature(if thinking { 0.6 } else { 0.7 })
+                .set_sampler_topp(if thinking { 0.95 } else { 0.8 })
+                .set_sampler_topk(20)
+                .set_sampler_minp(0.0)
                 .set_sampler_frequency_penalty(0.20)
-                .set_sampler_presence_penalty(0.0);
+                .set_sampler_presence_penalty(0.5);
             let mut stream = match worker_model.stream_chat_request(req).await {
                 Ok(s) => s,
                 Err(e) => {
