@@ -6,15 +6,13 @@ use clap::{Args, Subcommand};
 
 #[derive(Subcommand, Clone)]
 pub enum SnapshotCommand {
-    /// Using core fxf identifier
     Core(SnapshotCoreArgs),
-    /// Using iceberg identifier
+
     Iceberg(SnapshotIcebergArgs),
 }
 
 #[derive(Args, Clone)]
 pub struct SnapshotArgs {
-    /// The snapshot number
     pub snapshot: i64,
 }
 

@@ -2,9 +2,9 @@ use crate::api::management::inventory::Inventory;
 use crate::api::management::registration::Registration;
 use crate::api::management::version::GitConfig;
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
-use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
-use rust_mcp_sdk::schema::{schema_utils::CallToolError, CallToolResult};
+use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
+use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
+use rust_mcp_sdk::schema::{CallToolResult, schema_utils::CallToolError};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
@@ -23,7 +23,6 @@ Concepts: Inventory links a public FXF to an Iceberg location within a domain.",
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryGetByFxf {
-    /// FXF identifier in the format `XXXX-XXXX`.
     pub fxf: String,
 }
 
@@ -55,7 +54,6 @@ Concepts: Used to discover all public datasets backed by the same physical Icebe
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryListByIcebergLocation {
-    /// Iceberg location string in the format `_` followed by 32 lowercase hex characters.
     pub iceberg_location: String,
 }
 
@@ -87,7 +85,6 @@ Concepts: Domain is the top-level scope for datasets; this lists all public data
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryListByDomain {
-    /// Domain string to match exactly (case-sensitive).
     pub domain: String,
 }
 
@@ -119,7 +116,6 @@ Concepts: Path deterministically maps to Iceberg location; may have multiple met
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationListByPath {
-    /// Canonical path for the registration.
     pub path: String,
 }
 
@@ -151,7 +147,6 @@ Concepts: Iceberg location is the bridge between Registration and Inventory.",
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationGetByIcebergLocation {
-    /// Iceberg location string in the format `_` followed by 32 lowercase hex characters.
     pub iceberg_location: String,
 }
 
@@ -183,9 +178,8 @@ Concepts: Enables refined search within Registrations, especially to filter by d
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationQueryByPathAndMetadata {
-    /// Path string for the registration.
     pub path: String,
-    /// Metadata filters that must match exactly.
+
     #[serde(default)]
     pub metadata: HashMap<String, String>,
 }
@@ -244,7 +238,6 @@ Concepts: Used to find datasets changed within a time window; can correlate with
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryListUpdatedSince {
-    /// ISO-8601 UTC timestamp to filter updatedAt >= this value.
     pub since: String,
 }
 

@@ -3,10 +3,10 @@ use crate::api::management::client::ManagementClient;
 use crate::mcp::tools::{DiciCallableTool, DiciToolBox};
 use async_trait::async_trait;
 use rust_mcp_sdk::schema::{
-    schema_utils::CallToolError, CallToolRequest, CallToolResult, ListToolsRequest, ListToolsResult,
-    RpcError,
+    CallToolRequest, CallToolResult, ListToolsRequest, ListToolsResult, RpcError,
+    schema_utils::CallToolError,
 };
-use rust_mcp_sdk::{mcp_server::ServerHandler, McpServer};
+use rust_mcp_sdk::{McpServer, mcp_server::ServerHandler};
 use typed_builder::TypedBuilder;
 
 #[derive(TypedBuilder, Default, Clone)]

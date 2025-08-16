@@ -1,11 +1,11 @@
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
 use crate::api::client::DiciAsset;
+use crate::api::client::asset::{CoreAsset, IcebergAsset};
 use crate::api::traits::TableSource;
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
-use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
-use rust_mcp_sdk::schema::schema_utils::CallToolError;
+use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
+use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
 use rust_mcp_sdk::schema::CallToolResult;
+use rust_mcp_sdk::schema::schema_utils::CallToolError;
 use serde::{Deserialize, Serialize};
 
 #[mcp_tool(
@@ -23,7 +23,6 @@ Concepts: FXF uniquely identifies an Inventory; schema is resolved via Iceberg l
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetGetSchemaByFxf {
-    /// Core FXF identifier in format `XXXX-XXXX`.
     pub fxf: String,
 }
 
@@ -57,9 +56,8 @@ Concepts: Iceberg location uniquely identifies a Registration and Inventory mapp
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetGetSchemaByIceberg {
-    /// Iceberg location string in the format `_` followed by 32 lowercase hex characters.
     pub location: String,
-    /// Iceberg schema table name.
+
     pub schema_table: String,
 }
 

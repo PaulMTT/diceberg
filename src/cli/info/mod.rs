@@ -1,5 +1,5 @@
-use crate::cli::info::lookup::{handle_lookup, InfoLookupCommand};
-use crate::cli::info::table::{handle_info_table, InfoTableCommand};
+use crate::cli::info::lookup::{InfoLookupCommand, handle_lookup};
+use crate::cli::info::table::{InfoTableCommand, handle_info_table};
 use anyhow::Result;
 use clap::Subcommand;
 
@@ -8,10 +8,9 @@ pub mod table;
 
 #[derive(Subcommand, Clone)]
 pub enum InfoCommand {
-    /// Table level information
     #[clap(subcommand)]
     Table(InfoTableCommand),
-    /// DICI metadata from the management API
+
     #[clap(subcommand)]
     Lookup(InfoLookupCommand),
 }

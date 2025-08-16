@@ -12,17 +12,15 @@ use std::io::Write;
 
 #[derive(Subcommand, Clone)]
 pub enum SqlCommand {
-    /// Using the core fxf identifier
     Core(SqlCoreArgs),
-    /// Using the iceberg identifier
+
     Iceberg(SqlIcebergArgs),
 }
 
 #[derive(Args, Clone)]
 pub struct SqlArgs {
-    /// The sql statement
     pub query: String,
-    /// The response format
+
     #[arg(short, long, value_enum, default_value_t)]
     pub format: SqlOutputFormat,
 }

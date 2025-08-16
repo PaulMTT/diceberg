@@ -1,9 +1,9 @@
 use crate::cli::ai::handle_ai;
-use crate::cli::info::lookup::{handle_lookup, InfoLookupCommand};
-use crate::cli::info::{handle_info, InfoCommand};
-use crate::cli::serve::{handle_serve, ServeCommand};
-use crate::cli::sql::{handle_sql, SqlCommand};
-use crate::cli::util::{handle_util, UtilCommand};
+use crate::cli::info::lookup::{InfoLookupCommand, handle_lookup};
+use crate::cli::info::{InfoCommand, handle_info};
+use crate::cli::serve::{ServeCommand, handle_serve};
+use crate::cli::sql::{SqlCommand, handle_sql};
+use crate::cli::util::{UtilCommand, handle_util};
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
@@ -13,7 +13,6 @@ pub mod serve;
 pub mod sql;
 pub mod util;
 
-/// A CLI tool to interact with and execute sql against DICI assets
 #[derive(Parser)]
 #[command(version)]
 pub struct DiciCli {
@@ -23,19 +22,17 @@ pub struct DiciCli {
 
 #[derive(Subcommand, Clone)]
 pub enum Commands {
-    /// Information about DICI assets
     #[clap(subcommand)]
     Info(InfoCommand),
-    /// Execute sql against a DICI asset
+
     #[clap(subcommand)]
     Sql(SqlCommand),
-    /// Various utilities and helpers
+
     #[clap(subcommand)]
     Util(UtilCommand),
     #[clap(subcommand)]
-    /// Serve
     Serve(ServeCommand),
-    /// The AI repl
+
     Ai,
 }
 

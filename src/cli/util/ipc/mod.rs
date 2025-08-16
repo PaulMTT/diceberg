@@ -2,14 +2,13 @@ pub mod print;
 pub mod query;
 
 use crate::cli::util::ipc::print::handle_util_ipc_print;
-use crate::cli::util::ipc::query::{handle_util_ipc_query, IpcQueryArgs};
+use crate::cli::util::ipc::query::{IpcQueryArgs, handle_util_ipc_query};
 use anyhow::Result;
 use clap::Subcommand;
 #[derive(Subcommand, Clone)]
 pub enum IpcCommand {
-    /// Read an arrow IPC dataframe from stdin and print it
     Print,
-    /// Execute sql against an IPC dataframe from stdin
+
     Query(IpcQueryArgs),
 }
 

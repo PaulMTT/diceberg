@@ -5,7 +5,6 @@ pub mod mcp;
 
 #[derive(Subcommand, Clone)]
 pub enum ServeCommand {
-    /// MCP server
     MCP,
 }
 

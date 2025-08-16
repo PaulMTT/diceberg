@@ -1,13 +1,13 @@
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
 use crate::api::client::DiciAsset;
+use crate::api::client::asset::{CoreAsset, IcebergAsset};
 use crate::api::traits::SqlAble;
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
+use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
 use arrow_json::ArrayWriter;
 use datafusion::prelude::SQLOptions;
-use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
-use rust_mcp_sdk::schema::schema_utils::CallToolError;
+use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
 use rust_mcp_sdk::schema::CallToolResult;
+use rust_mcp_sdk::schema::schema_utils::CallToolError;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -26,9 +26,8 @@ Concepts: FXF resolves to an Inventory → Iceberg location mapping, enabling qu
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByFxf {
-    /// Core FXF identifier in format `XXXX-XXXX`.
     pub fxf: String,
-    /// SQL query to execute (use quoted `<fxf>` as the table name).
+
     pub sql: String,
 }
 
@@ -64,11 +63,10 @@ Concepts: Direct access to Iceberg tables bypassing FXF resolution; suitable for
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByIceberg {
-    /// Iceberg location string in the format `_` followed by 32 lowercase hex characters.
     pub location: String,
-    /// Iceberg schema table name.
+
     pub schema_table: String,
-    /// SQL query to execute (must reference `<schema_table>` only).
+
     pub sql: String,
 }
 

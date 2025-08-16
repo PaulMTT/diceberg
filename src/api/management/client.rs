@@ -1,7 +1,7 @@
 use crate::api::management::inventory::Inventory;
 use crate::api::management::registration::Registration;
 use crate::api::management::version::GitConfig;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use chrono::{DateTime, Utc};
 use reqwest::{Client, StatusCode};
 use std::collections::HashMap;

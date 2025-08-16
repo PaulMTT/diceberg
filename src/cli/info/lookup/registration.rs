@@ -5,24 +5,21 @@ use std::collections::HashMap;
 
 #[derive(Subcommand, Clone)]
 pub enum RegistrationLookupCommand {
-    /// All registrations
     All,
-    /// Registrations that are within a path
+
     Path(PathArgs),
-    /// Registrations that are within a path and filtered by metadata key-value
+
     Filtered(MetadataArgs),
 }
 #[derive(Args, Clone)]
 pub struct MetadataArgs {
-    /// The s3 path of the registration
     path: String,
-    /// Pairs of key-value metadata to filter registrations by
+
     pairs: Vec<String>,
 }
 
 #[derive(Args, Clone)]
 pub struct PathArgs {
-    /// The s3 path of the registration
     path: String,
 }
 

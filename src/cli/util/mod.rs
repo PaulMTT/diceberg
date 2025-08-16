@@ -1,12 +1,11 @@
 pub mod ipc;
 
-use crate::cli::util::ipc::{handle_util_ipc, IpcCommand};
+use crate::cli::util::ipc::{IpcCommand, handle_util_ipc};
 use anyhow::Result;
 use clap::Subcommand;
 
 #[derive(Subcommand, Clone)]
 pub enum UtilCommand {
-    /// Arrow IPC utilities
     #[clap(subcommand)]
     IPC(IpcCommand),
 }

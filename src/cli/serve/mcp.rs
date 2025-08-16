@@ -1,13 +1,13 @@
 use crate::mcp::handler::DiciServerHandler;
 use rust_mcp_sdk::schema::{
-    Implementation, InitializeResult, ServerCapabilities, ServerCapabilitiesTools,
-    LATEST_PROTOCOL_VERSION,
+    Implementation, InitializeResult, LATEST_PROTOCOL_VERSION, ServerCapabilities,
+    ServerCapabilitiesTools,
 };
 
 use rust_mcp_sdk::{
-    error::SdkResult, mcp_server::{server_runtime, ServerRuntime}, McpServer,
-    StdioTransport,
-    TransportOptions,
+    McpServer, StdioTransport, TransportOptions,
+    error::SdkResult,
+    mcp_server::{ServerRuntime, server_runtime},
 };
 
 pub async fn handle_serve_mcp() -> anyhow::Result<()> {
@@ -17,7 +17,6 @@ pub async fn handle_serve_mcp() -> anyhow::Result<()> {
 }
 
 async fn run_mcp() -> SdkResult<()> {
-    // 1) Server details and capabilities
     let server_details = InitializeResult {
         server_info: Implementation {
             name: "The data and insights cloud integration (DICI) model context protocol (MCP) server.".to_string(),
@@ -244,16 +243,12 @@ This table shows **shared fields** that allow navigation between entities.
         protocol_version: LATEST_PROTOCOL_VERSION.to_string(),
     };
 
-    // 2) stdio transport
     let transport = StdioTransport::new(TransportOptions::default())?;
 
-    // 3) our DateTime handler
     let handler = DiciServerHandler::default();
 
-    // 4) create server
     let server: ServerRuntime = server_runtime::create_server(server_details, transport, handler);
 
-    // 5) start server
     if let Err(start_error) = server.start().await {
         eprintln!(
             "{}",

@@ -20,12 +20,10 @@ pub mod datetime;
 pub mod management;
 pub mod sql;
 
-/// Converts any error into a `CallToolError` with a standard internal error shape.
 pub fn into_call_err<E: std::fmt::Display>(e: E) -> CallToolError {
     CallToolError::new(SdkError::internal_error().with_message(&e.to_string()))
 }
 
-/// Serializes a value to pretty JSON text for the tool output.
 pub fn json_as_text<T: Serialize>(value: &T) -> Result<CallToolResult, CallToolError> {
     let pretty_json = serde_json::to_string_pretty(value).map_err(into_call_err)?;
     Ok(CallToolResult::text_content(vec![TextContent::from(
