@@ -1,9 +1,8 @@
 use mistralrs::{RequestBuilder, TextMessageRole, TextMessages};
 use std::collections::VecDeque;
 
-use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::Frame;
 
 use crate::term::duplex::DuplexSource;
 use crate::term::llm_chat_sink::{CancelCtl, ChatEvent};
@@ -488,18 +487,7 @@ where
             .split(area);
 
         self.chat.render(frame, chunks[0]);
-
-        {
-            let title = if self.think_mode {
-                "Your message (think)"
-            } else {
-                "Your message"
-            };
-            let block = Block::default().borders(Borders::ALL).title(title);
-            let p = Paragraph::new(self.input.state.buffer.as_str()).block(block);
-            frame.render_widget(p, chunks[1]);
-        }
-
+        self.input.render(frame, chunks[1]);
         self.legend.render(frame, chunks[2]);
         self.status.render(frame, chunks[3]);
     }
