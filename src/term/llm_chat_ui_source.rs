@@ -1,12 +1,11 @@
-use mistralrs::{RequestBuilder, TextMessageRole, TextMessages};
+use mistralrs::{RequestBuilder, TextMessages};
 use std::collections::VecDeque;
 
-use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::Frame;
+use ratatui::layout::{Constraint, Direction, Layout};
 
 use crate::term::duplex::DuplexSource;
 use crate::term::llm_chat_sink::{CancelCtl, ChatEvent};
-use crate::term::ui::chat::message::Message;
 use crate::term::ui::chat::state::ChatState;
 use crate::term::ui::chat::view::ChatView;
 use crate::term::ui::input::state::InputState;
@@ -112,16 +111,17 @@ where
     }
 
     fn start_request(&mut self, req: PendingReq) {
-        self.chat.state.history.push(Message::user(req.prompt));
-        self.chat.state.partial.clear();
+        self.chat.state.push_turn(req.prompt.clone());
+
+        let msgs_vec = self.chat.state.model_messages_for_send();
+        let mut msgs = TextMessages::new();
+        for (role, text) in msgs_vec {
+            msgs = msgs.add_message(role, text);
+        }
+
         self.busy = true;
         self.aborting = false;
         self.chat.state.scroll.follow = true;
-
-        let mut msgs = TextMessages::new();
-        for (role, text) in self.chat.state.as_model_messages() {
-            msgs = msgs.add_message(role, text);
-        }
 
         let rb = RequestBuilder::from(msgs)
             .enable_thinking(req.think)
@@ -134,10 +134,7 @@ where
 
         if let Err(e) = self.source.try_send_to_sink(rb) {
             self.busy = false;
-            if matches!(self.chat.state.history.last(), Some(m) if m.role == TextMessageRole::User)
-            {
-                self.chat.state.history.pop();
-            }
+            self.chat.state.pop_last_turn();
             self.set_status(format!("Send failed: {e}"));
             self.set_status("Ready");
         } else {
@@ -149,33 +146,18 @@ where
         }
     }
 
-    fn finalize_turn_ok(&mut self, final_text_opt: Option<String>) {
+    fn finalize_turn_ok(&mut self) {
         if !self.busy {
             return;
         }
-
-        let final_text =
-            final_text_opt.unwrap_or_else(|| std::mem::take(&mut self.chat.state.partial));
-        if !final_text.is_empty() {
-            self.chat.state.history.push(Message::assistant(final_text));
-        } else {
-            self.chat.state.partial.clear();
-        }
+        self.chat.state.mark_last_complete();
         self.busy = false;
         self.after_turn_completed();
     }
 
     fn on_error(&mut self, err: Box<dyn std::error::Error + Send + Sync>) {
         let msg = err.to_string();
-        self.chat.state.partial.clear();
-
-        if matches!(self.chat.state.history.last(), Some(m) if m.role == TextMessageRole::User) {
-            self.chat
-                .state
-                .history
-                .push(Message::assistant(format!("Error: {msg}")));
-        }
-
+        self.chat.state.finish_last_with_error(msg.clone());
         self.busy = false;
         self.aborting = false;
         self.set_status(format!("Error: {msg}"));
@@ -183,7 +165,6 @@ where
     }
 
     fn on_cancel_ack(&mut self) {
-        self.chat.state.partial.clear();
         self.busy = false;
         self.aborting = false;
         self.set_status("Canceled");
@@ -191,23 +172,33 @@ where
     }
 
     fn after_turn_completed(&mut self) {
-        if self.pending.is_empty() {
+        if let Some(usage) = self.chat.state.last_usage() {
+            self.set_status(format!(
+                "Completed • total={} tok ({} prompt + {} completion) • {:.2} tok/s",
+                usage.total_tokens,
+                usage.prompt_tokens,
+                usage.completion_tokens,
+                usage.avg_tok_per_sec,
+            ));
+        } else if self.pending.is_empty() {
             self.set_status("Completed • Ready");
-            return;
         }
-        let n = self.pending.len();
-        self.set_status(if n == 1 {
-            "Completed • Next up (1 item)".to_string()
-        } else {
-            format!("Completed • Next up ({} items)", n)
-        });
 
-        if let Some(next) = self.pending.pop_front() {
-            self.update_pending_badge();
-            self.set_status("Dequeuing...");
-            self.start_request(next);
-        } else {
-            self.set_status("Ready");
+        if !self.pending.is_empty() {
+            let n = self.pending.len();
+            self.set_status(if n == 1 {
+                "Completed • Next up (1 item)".to_string()
+            } else {
+                format!("Completed • Next up ({} items)", n)
+            });
+
+            if let Some(next) = self.pending.pop_front() {
+                self.update_pending_badge();
+                self.set_status("Dequeuing...");
+                self.start_request(next);
+            } else {
+                self.set_status("Ready");
+            }
         }
     }
 
@@ -219,11 +210,8 @@ where
         let _ = self.source.cancel_tx().send(CancelCtl::AbortCurrent);
         self.aborting = true;
 
-        if matches!(self.chat.state.history.last(), Some(m) if m.role == TextMessageRole::User) {
-            self.chat.state.history.pop();
-        }
+        self.chat.state.pop_last_turn();
 
-        self.chat.state.partial.clear();
         self.clear_queue();
 
         self.set_status("Canceling current turn…");
@@ -234,15 +222,12 @@ where
             let _ = self.source.cancel_tx().send(CancelCtl::AbortCurrent);
             self.aborting = true;
         }
-
         self.clear_queue();
         self.chat.state.clear();
         self.chat.state.system_prompt = DEFAULT_SYSTEM_PROMPT.to_string();
         self.input.state.buffer.clear();
-        self.chat.state.partial.clear();
 
         self.busy = false;
-
         self.set_status("Ready (new chat)");
     }
 
@@ -254,46 +239,39 @@ where
                 Ok(ev) => {
                     if self.aborting {
                         match ev {
-                            ChatEvent::Cancelled => {
-                                self.on_cancel_ack();
-                            }
-                            ChatEvent::Complete => {}
-                            ChatEvent::Response(_r) => {}
+                            ChatEvent::Cancelled => self.on_cancel_ack(),
+                            ChatEvent::Complete => { /* ignore while aborting */ }
+                            ChatEvent::Response(_) => { /* swallow */ }
                         }
                         continue;
                     }
 
                     match ev {
                         ChatEvent::Response(resp) => match resp {
-                            mistralrs::Response::Chunk(chunk) => {
-                                if let Some(delta) = chunk_delta_text(&chunk) {
-                                    let first = self.chat.state.partial.is_empty();
-                                    self.busy = true;
-                                    self.chat.state.partial.push_str(&delta);
-                                    if first {
-                                        self.set_status(if self.think_mode {
-                                            "Streaming... (think)"
-                                        } else {
-                                            "Streaming..."
-                                        });
-                                    }
-                                }
-                            }
-                            mistralrs::Response::Done(done) => {
-                                let final_text = done
-                                    .choices
-                                    .get(0)
-                                    .and_then(|c| c.message.content.as_deref())
-                                    .map(|s| s.to_string());
-                                self.finalize_turn_ok(final_text);
-                            }
                             mistralrs::Response::InternalError(err) => {
                                 self.on_error(err);
                             }
-                            _ => {}
+                            other => {
+                                let had_text = self
+                                    .chat
+                                    .state
+                                    .current_assistant_text()
+                                    .chars()
+                                    .any(|c| !c.is_control());
+                                let first_token = !had_text;
+                                if first_token {
+                                    self.set_status(if self.think_mode {
+                                        "Streaming... (think)"
+                                    } else {
+                                        "Streaming..."
+                                    });
+                                }
+                                self.busy = true;
+                                self.chat.state.append_response(other);
+                            }
                         },
                         ChatEvent::Complete => {
-                            self.finalize_turn_ok(None);
+                            self.finalize_turn_ok();
                         }
                         ChatEvent::Cancelled => {
                             self.on_cancel_ack();
@@ -308,7 +286,6 @@ where
                 }
             }
         }
-
         false
     }
 
@@ -366,18 +343,7 @@ where
                                 continue;
                             }
 
-                            let mut removed = false;
-                            if matches!(self.chat.state.history.last(), Some(m) if m.role == TextMessageRole::Assistant)
-                            {
-                                self.chat.state.history.pop();
-                                removed = true;
-                            }
-                            if matches!(self.chat.state.history.last(), Some(m) if m.role == TextMessageRole::User)
-                            {
-                                self.chat.state.history.pop();
-                                removed = true;
-                            }
-                            if removed {
+                            if self.chat.state.pop_last_completed_turn() {
                                 self.set_status("Removed last exchange");
                             } else {
                                 self.set_status("Nothing to cancel");
@@ -402,18 +368,12 @@ where
                             }
                             KeyCode::Backspace => {
                                 self.input.state.buffer.pop();
-                                let len = self.input.state.buffer.len();
-                                self.set_status(format!("Editing input • {} chars", len));
                             }
                             KeyCode::Char(ch) => {
                                 self.input.state.buffer.push(ch);
-                                let len = self.input.state.buffer.len();
-                                self.set_status(format!("Editing input • {} chars", len));
                             }
                             KeyCode::Tab => {
                                 self.input.state.buffer.push('\t');
-                                let len = self.input.state.buffer.len();
-                                self.set_status(format!("Editing input • {} chars", len));
                             }
                             KeyCode::Up => {
                                 self.chat.state.scroll.line_up();
@@ -465,15 +425,8 @@ where
         self.legend.state.think_mode = self.think_mode;
         self.legend.state.input_empty = self.input.state.buffer.trim().is_empty();
         self.legend.state.pending = self.pending.len();
-        self.legend.state.can_undo = {
-            let h = &self.chat.state.history;
-            if h.len() >= 2 {
-                matches!(h[h.len() - 2].role, TextMessageRole::User)
-                    && matches!(h[h.len() - 1].role, TextMessageRole::Assistant)
-            } else {
-                false
-            }
-        };
+        self.legend.state.can_undo = self.chat.state.has_completed_turn();
+        self.input.state.think_mode = self.think_mode;
 
         let area = frame.area();
         let chunks = Layout::default()
@@ -491,14 +444,4 @@ where
         self.legend.render(frame, chunks[2]);
         self.status.render(frame, chunks[3]);
     }
-}
-
-fn chunk_delta_text(chunk: &mistralrs::ChatCompletionChunkResponse) -> Option<String> {
-    let mut out = String::new();
-    for ch in &chunk.choices {
-        if let Some(s) = ch.delta.content.as_deref() {
-            out.push_str(s);
-        }
-    }
-    if out.is_empty() { None } else { Some(out) }
 }

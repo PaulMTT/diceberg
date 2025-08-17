@@ -1,34 +1,7 @@
-use mistralrs::TextMessageRole;
+use mistralrs::{Response, TextMessageRole};
 use ratatui::prelude::{Color, Line, Modifier, Span, Style};
 use ratatui::text::Text;
 use tui_markdown::from_str as md_from_str;
-
-#[derive(Clone)]
-pub struct Message {
-    pub role: TextMessageRole,
-    pub content: String,
-}
-impl Message {
-    pub fn system(s: String) -> Self {
-        Self {
-            role: TextMessageRole::System,
-            content: s,
-        }
-    }
-    pub fn user(s: String) -> Self {
-        Self {
-            role: TextMessageRole::User,
-            content: s,
-        }
-    }
-    pub fn assistant(s: String) -> Self {
-        Self {
-            role: TextMessageRole::Assistant,
-            content: s,
-        }
-    }
-}
-pub type Messages = Vec<Message>;
 
 const THINK_OPEN: &str = "<think>";
 const THINK_CLOSE: &str = "</think>";
@@ -183,13 +156,72 @@ fn prepend_who<'a>(mut t: Text<'a>, who: &str) -> Text<'a> {
     t
 }
 
-pub fn message_to_lines<'a>(role: &TextMessageRole, text: &'a str) -> Vec<Line<'a>> {
+fn to_owned_text(t: Text<'_>) -> Text<'static> {
+    let owned_lines: Vec<Line<'static>> = t
+        .lines
+        .into_iter()
+        .map(|line| {
+            let spans: Vec<Span<'static>> = line
+                .spans
+                .into_iter()
+                .map(|s| Span::styled(s.content.to_string(), s.style))
+                .collect();
+            Line::from(spans)
+        })
+        .collect();
+    Text::from(owned_lines)
+}
+
+pub fn message_to_lines(role: &TextMessageRole, text: &str) -> Vec<Line<'static>> {
     let who = match role {
         TextMessageRole::System => "[system]",
         TextMessageRole::User => "[you]",
         TextMessageRole::Assistant => "[ai]",
         _ => "[?]",
     };
-    let t = prepend_who(markdown_text_with_think(text), who);
-    t.lines
+
+    let t = markdown_text_with_think(text);
+
+    let t_owned = to_owned_text(t);
+
+    prepend_who(t_owned, who).lines
+}
+
+fn chunk_delta_text(chunk: &mistralrs::ChatCompletionChunkResponse) -> Option<String> {
+    let mut out = String::new();
+    for ch in &chunk.choices {
+        if let Some(s) = ch.delta.content.as_deref() {
+            out.push_str(s);
+        }
+    }
+    if out.is_empty() { None } else { Some(out) }
+}
+
+pub fn assistant_text_from_responses(resps: &[Response]) -> String {
+    let mut out = String::new();
+    for r in resps {
+        match r {
+            Response::Chunk(c) => {
+                if let Some(delta) = chunk_delta_text(c) {
+                    out.push_str(&delta);
+                }
+            }
+            Response::Done(done) => {
+                if out.is_empty() {
+                    if let Some(s) = done
+                        .choices
+                        .get(0)
+                        .and_then(|c| c.message.content.as_deref())
+                    {
+                        out.push_str(s);
+                    }
+                }
+            }
+            Response::InternalError(e) => {
+                return format!("Error: {e}");
+            }
+            _ => {}
+        }
+    }
+    out
 }

@@ -1,4 +1,4 @@
-use crate::term::ui::chat::message::{Message, message_to_lines};
+use crate::term::ui::chat::message::{assistant_text_from_responses, message_to_lines};
 use crate::term::ui::chat::state::ChatState;
 use crate::term::ui::render::RenderArea;
 use mistralrs::TextMessageRole;
@@ -20,14 +20,12 @@ impl RenderArea for ChatView {
         let inner = block.inner(area);
 
         let mut lines: Vec<Line> = Vec::new();
-        for Message { role, content } in self.state.history.iter() {
-            lines.extend(message_to_lines(role, content));
-        }
-        if !self.state.partial.is_empty() {
-            lines.extend(message_to_lines(
-                &TextMessageRole::Assistant,
-                &self.state.partial,
-            ));
+        for turn in &self.state.turns {
+            lines.extend(message_to_lines(&TextMessageRole::User, &turn.user));
+            let a_text = assistant_text_from_responses(&turn.responses);
+            if !a_text.is_empty() {
+                lines.extend(message_to_lines(&TextMessageRole::Assistant, &a_text));
+            }
         }
 
         let measuring = Paragraph::new(lines.clone()).wrap(Wrap { trim: false });
