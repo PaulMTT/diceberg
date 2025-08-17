@@ -31,8 +31,28 @@ pub trait TableSource: TableIdentitySource + CatalogSource {
     fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
 }
 
+pub trait ManuallySqlAble: TableSource {
+    fn context_with_table_reference(
+        &self,
+        table_reference: TableReference,
+    ) -> impl Future<Output = Result<SessionContext>>;
+    fn sql_with_table_reference(
+        &self,
+        sql: &str,
+        table_reference: TableReference,
+    ) -> impl Future<Output = Result<DataFrame>>;
+
+    fn sql_with_table_reference_and_options(
+        &self,
+        sql: &str,
+        table_reference: TableReference,
+        options: SQLOptions,
+    ) -> impl Future<Output = Result<DataFrame>>;
+}
+
 pub trait SqlAble: TableSource + TableReferenceSource {
     fn context(&self) -> impl Future<Output = Result<SessionContext>>;
+
     fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;
 
     fn sql_with_options(
@@ -69,6 +89,50 @@ where
             .as_struct()
             .fields()
             .to_vec())
+    }
+}
+
+impl<T> ManuallySqlAble for T
+where
+    T: TableSource,
+{
+    async fn context_with_table_reference(
+        &self,
+        table_reference: TableReference,
+    ) -> Result<SessionContext> {
+        let table: Table = self.table().await?;
+        let ctx = SessionContext::new();
+        let table_provider = Arc::new(IcebergTableProvider::try_new_from_table(table).await?);
+        ctx.register_table(table_reference, table_provider)
+            .context("Failed to register table")?;
+        Ok(ctx)
+    }
+
+    async fn sql_with_table_reference(
+        &self,
+        sql: &str,
+        table_reference: TableReference,
+    ) -> Result<DataFrame> {
+        self.context_with_table_reference(table_reference)
+            .await
+            .context("Failed to get session context")?
+            .sql(sql)
+            .await
+            .context("Failed to execute query")
+    }
+
+    async fn sql_with_table_reference_and_options(
+        &self,
+        sql: &str,
+        table_reference: TableReference,
+        options: SQLOptions,
+    ) -> Result<DataFrame> {
+        self.context_with_table_reference(table_reference)
+            .await
+            .context("Failed to get session context")?
+            .sql_with_options(sql, options)
+            .await
+            .context("Failed to execute query")
     }
 }
 

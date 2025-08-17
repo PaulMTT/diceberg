@@ -1,13 +1,14 @@
-use crate::api::client::DiciAsset;
 use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::traits::SqlAble;
+use crate::api::client::DiciAsset;
+use crate::api::traits::{ManuallySqlAble, SqlAble};
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
+use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
 use arrow_json::ArrayWriter;
 use datafusion::prelude::SQLOptions;
-use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
-use rust_mcp_sdk::schema::CallToolResult;
+use datafusion::sql::TableReference;
+use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
 use rust_mcp_sdk::schema::schema_utils::CallToolError;
+use rust_mcp_sdk::schema::CallToolResult;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -16,9 +17,10 @@ use serde_json::Value;
     name = "asset_execute_sql_by_fxf",
     title = "Execute SQL Query on Dataset by FXF",
     description = "Executes a SQL query against a public dataset identified by FXF. \
-Input: `fxf` (string, `xxxx-xxxx`), `sql` (string, must use quoted `<fxf>` as table name). \
+Input: `fxf` (string, `xxxx-xxxx`), `sql` (string, must always use table name `this`). \
 Output: JSON array of query results. \
-Concepts: FXF resolves to an Inventory → Iceberg location mapping, enabling query execution on the underlying table.",
+Concepts: FXF resolves to an Inventory → Iceberg location mapping. All queries must refer only to `this`, \
+which represents the resolved dataset table.",
     idempotent_hint = false,
     destructive_hint = false,
     open_world_hint = false,
@@ -53,9 +55,10 @@ impl DiciCallableTool for AssetExecuteSqlByFxf {
     name = "asset_execute_sql_by_iceberg",
     title = "Execute SQL Query on Dataset by Iceberg Location",
     description = "Executes a SQL query directly against an Iceberg table. \
-Input: `location` (string, `_` + 32 lowercase hex), `schema_table` (string), `sql` (string, must reference `<schema_table>` only). \
+Input: `location` (string, `_` + 32 lowercase hex), `schema_table` (string), `sql` (string, must always use table name `this`). \
 Output: JSON array of query results. \
-Concepts: Direct access to Iceberg tables bypassing FXF resolution; suitable for internal workflows.",
+Concepts: Direct access to Iceberg tables bypassing FXF resolution. All queries must refer only to `this`, \
+which represents the bound Iceberg table.",
     idempotent_hint = false,
     destructive_hint = false,
     open_world_hint = false,
@@ -98,7 +101,12 @@ where
         .with_allow_ddl(false)
         .with_allow_dml(false)
         .with_allow_statements(false);
-    let dataframe = asset.sql_with_options(sql, options).await?;
+    let table_reference = TableReference::Bare {
+        table: "this".into(),
+    };
+    let dataframe = asset
+        .sql_with_table_reference_and_options(sql, table_reference, options)
+        .await?;
     let results = dataframe.collect().await?;
 
     let mut buf = Vec::new();
