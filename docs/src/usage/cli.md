@@ -1,8 +1,5 @@
 # Command Line Interface
 
-## Requirements
-[Requirements](requirements.md)
- 
 ## Demo
 
 For now we have, in staging, the inventory:
