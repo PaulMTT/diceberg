@@ -1,5 +1,5 @@
 use crate::api::store::asset::dici::DiciAsset;
-use crate::api::store::asset::traits::table_source::SchemaSource;
+use crate::api::store::asset::traits::schema_source::SchemaSource;
 use crate::cli::info::table::AssetArgs;
 use anyhow::{Context, Result};
 pub async fn handle_info_table_schema(asset_args: AssetArgs) -> Result<()> {

@@ -1,6 +1,5 @@
 use crate::api::store::catalog::catalog_source::CatalogSource;
 use anyhow::{Context, Result};
-use iceberg::spec::NestedFieldRef;
 use iceberg::table::Table;
 use iceberg::{Catalog, TableIdent};
 pub trait TableIdentitySource {
@@ -25,25 +24,5 @@ where
             )
             .await
             .context("Failed to load table")
-    }
-}
-
-pub trait SchemaSource: TableSource {
-    fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
-}
-
-impl<T> SchemaSource for T
-where
-    T: TableSource,
-{
-    async fn schema(&self) -> Result<Vec<NestedFieldRef>> {
-        Ok(self
-            .table()
-            .await?
-            .metadata()
-            .current_schema()
-            .as_struct()
-            .fields()
-            .to_vec())
     }
 }
