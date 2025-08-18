@@ -1,4 +1,4 @@
-# Diceberg!
+# Introduction
 
 Accessing dici assets without using our trino cluster or core.
 
