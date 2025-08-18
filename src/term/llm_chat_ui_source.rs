@@ -148,20 +148,25 @@ where
         }
     }
     fn cancel_current(&mut self) {
-        self.abort_and_clear_queue();
+        self.abort();
+        self.pending.clear();
         self.chat.state.pop_last_turn();
         self.set_status("Canceling current turn…");
     }
     fn new_chat(&mut self) {
-        self.abort_and_clear_queue();
+        if self.busy{
+            self.abort();
+        }
+        self.pending.clear();
         self.chat.clear();
         self.input.clear();
         self.set_status("Ready (new chat)");
     }
-    fn abort_and_clear_queue(&mut self) {
-        let _ = self.source.cancel_tx().send(CancelCtl::AbortCurrent);
-        self.aborting = true;
-        self.pending.clear();
+    fn abort(&mut self) {
+        if self.busy && !self.aborting{
+            let _ = self.source.cancel_tx().send(CancelCtl::AbortCurrent);
+            self.aborting = true;
+        }
     }
     fn drain_sink(&mut self) -> bool {
         loop {
