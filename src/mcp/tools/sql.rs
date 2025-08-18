@@ -1,7 +1,7 @@
-use crate::api::dici::asset::{CoreArgs, DiciAsset, IcebergArgs};
-use crate::api::dici::core::CoreAsset;
-use crate::api::dici::iceberg::IcebergAsset;
-use crate::api::traits::manually_sqlable::ManuallySqlAble;
+use crate::api::store::asset::core::CoreAsset;
+use crate::api::store::asset::dici::{CoreArgs, DiciAsset, IcebergArgs};
+use crate::api::store::asset::iceberg::IcebergAsset;
+use crate::api::store::asset::traits::manually_sqlable::ManuallySqlAble;
 use crate::mcp::handler::DiciServerHandlerState;
 use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
 use arrow_json::ArrayWriter;

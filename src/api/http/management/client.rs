@@ -1,31 +1,12 @@
-use crate::api::management::inventory::Inventory;
-use crate::api::management::registration::Registration;
-use crate::api::management::version::GitConfig;
+use crate::api::http::management::config::ManagementConfig;
+use crate::api::http::management::model::inventory::Inventory;
+use crate::api::http::management::model::registration::Registration;
+use crate::api::http::management::model::version::GitConfig;
 use anyhow::{Context, Result, anyhow};
 use chrono::{DateTime, Utc};
 use reqwest::{Client, StatusCode};
 use std::collections::HashMap;
-use std::env;
 use typed_builder::TypedBuilder;
-fn management_address_from_env() -> Result<String> {
-    env::var("DICI_MANAGEMENT_ADDRESS").context("DICI_MANAGEMENT_ADDRESS is not set")
-}
-fn default_management_address() -> String {
-    management_address_from_env()
-        .context("Could not determine management address")
-        .unwrap()
-}
-pub type ManagementAddress = String;
-#[derive(TypedBuilder, Clone)]
-pub struct ManagementConfig {
-    #[builder(default = default_management_address(), setter(into))]
-    address: ManagementAddress,
-}
-impl Default for ManagementConfig {
-    fn default() -> Self {
-        Self::builder().build()
-    }
-}
 #[derive(TypedBuilder, Clone)]
 pub struct ManagementClient {
     #[builder(default)]

@@ -1,3 +1,2 @@
-pub mod dici;
-pub mod management;
-pub mod traits;
+pub mod http;
+pub mod store;

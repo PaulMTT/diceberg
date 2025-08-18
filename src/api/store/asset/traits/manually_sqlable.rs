@@ -1,4 +1,4 @@
-use crate::api::traits::table_source::TableSource;
+use crate::api::store::asset::traits::table_source::TableSource;
 use anyhow::{Context, Result};
 use datafusion::dataframe::DataFrame;
 use datafusion::prelude::{SQLOptions, SessionContext};
@@ -6,6 +6,7 @@ use datafusion::sql::TableReference;
 use iceberg::table::Table;
 use iceberg_datafusion::IcebergTableProvider;
 use std::sync::Arc;
+// Meaning we need to provide the table reference (not to be confused with the true table identity). For example, allowing the use of "this" for the table name.
 pub trait ManuallySqlAble: TableSource {
     fn context_with_table_reference(
         &self,

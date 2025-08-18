@@ -1,5 +1,5 @@
-use crate::api::dici::asset::DiciAsset;
-use crate::api::traits::sqlable::SqlAble;
+use crate::api::store::asset::dici::DiciAsset;
+use crate::api::store::asset::traits::sqlable::SqlAble;
 use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::{Context, Result};
 use arrow::array::RecordBatch;

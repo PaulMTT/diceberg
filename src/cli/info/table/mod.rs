@@ -1,4 +1,4 @@
-use crate::api::dici::asset::DiciAsset;
+use crate::api::store::asset::dici::DiciAsset;
 use crate::cli::info::table::history::{HistoryCommand, handle_info_table_history};
 use crate::cli::info::table::partition::handle_info_table_partition;
 use crate::cli::info::table::schema::handle_info_table_schema;

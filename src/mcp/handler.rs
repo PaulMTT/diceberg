@@ -1,5 +1,5 @@
-use crate::api::dici::catalog::DiciCatalog;
-use crate::api::management::client::ManagementClient;
+use crate::api::http::management::client::ManagementClient;
+use crate::api::store::catalog::dici::DiciCatalog;
 use crate::mcp::tools::{DiciCallableTool, DiciToolBox};
 use async_trait::async_trait;
 use rust_mcp_sdk::schema::{

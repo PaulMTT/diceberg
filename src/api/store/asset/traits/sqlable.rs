@@ -1,11 +1,14 @@
-use crate::api::traits::TableReferenceSource;
-use crate::api::traits::table_source::TableSource;
+use crate::api::store::asset::traits::table_source::TableSource;
 use anyhow::{Context, Result};
+use datafusion::common::TableReference;
 use datafusion::dataframe::DataFrame;
 use datafusion::prelude::{SQLOptions, SessionContext};
 use iceberg::table::Table;
 use iceberg_datafusion::IcebergTableProvider;
 use std::sync::Arc;
+pub trait TableReferenceSource {
+    fn table_reference(&self) -> impl Future<Output = Result<TableReference>>;
+}
 pub trait SqlAble: TableSource + TableReferenceSource {
     fn context(&self) -> impl Future<Output = Result<SessionContext>>;
     fn sql(&self, sql: &str) -> impl Future<Output = Result<DataFrame>>;

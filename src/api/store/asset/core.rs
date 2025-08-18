@@ -1,4 +1,4 @@
-use crate::api::traits::TableReferenceSource;
+use crate::api::store::asset::traits::sqlable::TableReferenceSource;
 use anyhow::Result;
 use datafusion::common::TableReference;
 use typed_builder::TypedBuilder;

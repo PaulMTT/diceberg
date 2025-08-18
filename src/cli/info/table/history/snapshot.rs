@@ -1,5 +1,5 @@
-use crate::api::dici::asset::DiciAsset;
-use crate::api::traits::table_source::TableSource;
+use crate::api::store::asset::dici::DiciAsset;
+use crate::api::store::asset::traits::table_source::TableSource;
 use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::{Context, Result};
 use clap::{Args, Subcommand};

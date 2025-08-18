@@ -1,8 +1,10 @@
-use crate::api::dici::catalog::DiciCatalog;
-use crate::api::dici::core::{CoreAsset, CoreFxf};
-use crate::api::dici::iceberg::{IcebergAsset, IcebergLocation, IcebergSchemaTable};
-use crate::api::management::client::ManagementClient;
-use crate::api::traits::{CatalogSource, TableIdentitySource, TableReferenceSource};
+use crate::api::http::management::client::ManagementClient;
+use crate::api::store::asset::core::{CoreAsset, CoreFxf};
+use crate::api::store::asset::iceberg::{IcebergAsset, IcebergLocation, IcebergSchemaTable};
+use crate::api::store::asset::traits::sqlable::TableReferenceSource;
+use crate::api::store::asset::traits::table_source::TableIdentitySource;
+use crate::api::store::catalog::catalog_source::CatalogSource;
+use crate::api::store::catalog::dici::DiciCatalog;
 use anyhow::{Context, Result};
 use datafusion::common::TableReference;
 use iceberg::TableIdent;

@@ -1,6 +1,6 @@
-use crate::api::management::inventory::Inventory;
-use crate::api::management::registration::Registration;
-use crate::api::management::version::GitConfig;
+use crate::api::http::management::model::inventory::Inventory;
+use crate::api::http::management::model::registration::Registration;
+use crate::api::http::management::model::version::GitConfig;
 use crate::mcp::handler::DiciServerHandlerState;
 use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
 use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};

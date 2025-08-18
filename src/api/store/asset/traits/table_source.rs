@@ -1,8 +1,11 @@
-use crate::api::traits::{CatalogSource, TableIdentitySource};
+use crate::api::store::catalog::catalog_source::CatalogSource;
 use anyhow::{Context, Result};
-use iceberg::Catalog;
 use iceberg::spec::NestedFieldRef;
 use iceberg::table::Table;
+use iceberg::{Catalog, TableIdent};
+pub trait TableIdentitySource {
+    fn table_ident(&self) -> impl Future<Output = Result<TableIdent>>;
+}
 pub trait TableSource: TableIdentitySource + CatalogSource {
     fn table(&self) -> impl Future<Output = Result<Table>>;
     fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;

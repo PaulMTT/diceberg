@@ -1,4 +1,4 @@
-use crate::api::management::client::ManagementClient;
+use crate::api::http::management::client::ManagementClient;
 use anyhow::Context;
 use clap::{Args, Subcommand};
 #[derive(Subcommand, Clone)]

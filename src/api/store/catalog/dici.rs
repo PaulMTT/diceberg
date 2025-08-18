@@ -1,5 +1,5 @@
-use crate::api::dici::config::DiciConfig;
-use crate::api::traits::CatalogSource;
+use crate::api::store::catalog::catalog_source::CatalogSource;
+use crate::api::store::catalog::config::DiciConfig;
 use anyhow::Context;
 use anyhow::Result;
 use iceberg_catalog_glue::{GlueCatalog, GlueCatalogConfig};
