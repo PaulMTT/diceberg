@@ -1,0 +1,5 @@
+[book]
+authors = ["Paul Maksimovich"]
+language = "en"
+src = "src"
+title = "Diceberg Documentation"
