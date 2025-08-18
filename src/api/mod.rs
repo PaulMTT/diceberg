@@ -1,3 +1,3 @@
-pub mod client;
+pub mod dici;
 pub mod management;
 pub mod traits;

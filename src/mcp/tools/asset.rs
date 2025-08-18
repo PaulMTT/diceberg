@@ -1,6 +1,7 @@
-use crate::api::client::DiciAsset;
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::traits::TableSource;
+use crate::api::dici::asset::DiciAsset;
+use crate::api::dici::core::CoreAsset;
+use crate::api::dici::iceberg::IcebergAsset;
+use crate::api::traits::table_source::TableSource;
 use crate::mcp::handler::DiciServerHandlerState;
 use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
 use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
@@ -31,7 +32,7 @@ impl DiciCallableTool for AssetGetSchemaByFxf {
     ) -> Result<CallToolResult, CallToolError> {
         let asset = DiciAsset::Core {
             asset: CoreAsset::builder().fxf(&self.fxf).build(),
-            dici_client: state.dici_client.clone(),
+            dici_catalog: state.dici_catalog.clone(),
             management_client: state.management_client.clone(),
         };
         let fields = asset.schema().await.map_err(into_call_err)?;
@@ -65,7 +66,7 @@ impl DiciCallableTool for AssetGetSchemaByIceberg {
                 .location(&self.location)
                 .schema_table(&self.schema_table)
                 .build(),
-            client: state.dici_client.clone(),
+            dici_catalog: state.dici_catalog.clone(),
         };
         let fields = asset.schema().await.map_err(into_call_err)?;
         json_as_text(&fields)

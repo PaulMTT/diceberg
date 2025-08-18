@@ -1,5 +1,7 @@
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::client::{DiciAsset, DiciClient};
+use crate::api::dici::asset::DiciAsset;
+use crate::api::dici::catalog::DiciCatalog;
+use crate::api::dici::core::CoreAsset;
+use crate::api::dici::iceberg::IcebergAsset;
 use crate::api::management::client::ManagementClient;
 use crate::cli::info::table::history::{HistoryCommand, handle_info_table_history};
 use crate::cli::info::table::partition::handle_info_table_partition;
@@ -35,7 +37,7 @@ impl Into<DiciAsset> for CoreAssetArgs {
     fn into(self) -> DiciAsset {
         DiciAsset::Core {
             asset: CoreAsset::builder().fxf(self.fxf).build(),
-            dici_client: DiciClient::default(),
+            dici_catalog: DiciCatalog::default(),
             management_client: ManagementClient::default(),
         }
     }
@@ -52,7 +54,7 @@ impl Into<DiciAsset> for IcebergAssetArgs {
                 .location(self.location)
                 .schema_table(self.schema_table)
                 .build(),
-            client: DiciClient::default(),
+            dici_catalog: DiciCatalog::default(),
         }
     }
 }

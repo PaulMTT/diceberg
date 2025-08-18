@@ -1,6 +1,7 @@
-use crate::api::client::DiciAsset;
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
-use crate::api::traits::ManuallySqlAble;
+use crate::api::dici::asset::DiciAsset;
+use crate::api::dici::core::CoreAsset;
+use crate::api::dici::iceberg::IcebergAsset;
+use crate::api::traits::manually_sqlable::ManuallySqlAble;
 use crate::mcp::handler::DiciServerHandlerState;
 use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
 use arrow_json::ArrayWriter;
@@ -37,7 +38,7 @@ impl DiciCallableTool for AssetExecuteSqlByFxf {
     ) -> Result<CallToolResult, CallToolError> {
         let asset = DiciAsset::Core {
             asset: CoreAsset::builder().fxf(&self.fxf).build(),
-            dici_client: state.dici_client.clone(),
+            dici_catalog: state.dici_catalog.clone(),
             management_client: state.management_client.clone(),
         };
         let x: Vec<Value> = run_sql_and_return_json(&asset, &self.sql)
@@ -75,7 +76,7 @@ impl DiciCallableTool for AssetExecuteSqlByIceberg {
                 .location(&self.location)
                 .schema_table(&self.schema_table)
                 .build(),
-            client: state.dici_client.clone(),
+            dici_catalog: state.dici_catalog.clone(),
         };
         let x: Vec<Value> = run_sql_and_return_json(&asset, &self.sql)
             .await

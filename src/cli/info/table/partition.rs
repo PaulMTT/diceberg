@@ -1,5 +1,5 @@
-use crate::api::client::DiciAsset;
-use crate::api::traits::TableSource;
+use crate::api::dici::asset::DiciAsset;
+use crate::api::traits::table_source::TableSource;
 use crate::cli::info::table::AssetArgs;
 use anyhow::{Context, Result};
 pub async fn handle_info_table_partition(asset_args: AssetArgs) -> Result<()> {

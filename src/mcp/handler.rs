@@ -1,4 +1,4 @@
-use crate::api::client::DiciClient;
+use crate::api::dici::catalog::DiciCatalog;
 use crate::api::management::client::ManagementClient;
 use crate::mcp::tools::{DiciCallableTool, DiciToolBox};
 use async_trait::async_trait;
@@ -11,7 +11,7 @@ use typed_builder::TypedBuilder;
 #[derive(TypedBuilder, Default, Clone)]
 pub struct DiciServerHandlerState {
     pub management_client: ManagementClient,
-    pub dici_client: DiciClient,
+    pub dici_catalog: DiciCatalog,
 }
 #[derive(TypedBuilder, Default)]
 pub struct DiciServerHandler {
