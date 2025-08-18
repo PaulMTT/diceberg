@@ -1,5 +1,5 @@
 # Summary
-[Introduction](./intro.md)
+[Introduction](./introduction.md)
 [Features](./features.md)
 [Installation](./installation.md)
 [Usage](./usage.md)
