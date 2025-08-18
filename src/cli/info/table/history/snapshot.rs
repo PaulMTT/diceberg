@@ -3,19 +3,15 @@ use crate::api::traits::TableSource;
 use crate::cli::info::table::{CoreAssetArgs, IcebergAssetArgs};
 use anyhow::{Context, Result};
 use clap::{Args, Subcommand};
-
 #[derive(Subcommand, Clone)]
 pub enum SnapshotCommand {
     Core(SnapshotCoreArgs),
-
     Iceberg(SnapshotIcebergArgs),
 }
-
 #[derive(Args, Clone)]
 pub struct SnapshotArgs {
     pub snapshot: i64,
 }
-
 #[derive(Args, Clone)]
 pub struct SnapshotCoreArgs {
     #[clap(flatten)]
@@ -23,7 +19,6 @@ pub struct SnapshotCoreArgs {
     #[clap(flatten)]
     pub snapshot: SnapshotArgs,
 }
-
 #[derive(Args, Clone)]
 pub struct SnapshotIcebergArgs {
     #[clap(flatten)]
@@ -31,7 +26,6 @@ pub struct SnapshotIcebergArgs {
     #[clap(flatten)]
     pub snapshot: SnapshotArgs,
 }
-
 pub async fn handle_info_table_snapshot(snapshot_command: SnapshotCommand) -> Result<()> {
     let (asset, snapshot): (DiciAsset, i64) = match snapshot_command {
         SnapshotCommand::Core(SnapshotCoreArgs {

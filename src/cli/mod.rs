@@ -6,36 +6,29 @@ use crate::cli::sql::{SqlCommand, handle_sql};
 use crate::cli::util::{UtilCommand, handle_util};
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-
 pub mod ai;
 pub mod info;
 pub mod serve;
 pub mod sql;
 pub mod util;
-
 #[derive(Parser)]
 #[command(version)]
 pub struct DiciCli {
     #[command(subcommand)]
     pub command: Commands,
 }
-
 #[derive(Subcommand, Clone)]
 pub enum Commands {
     #[clap(subcommand)]
     Info(InfoCommand),
-
     #[clap(subcommand)]
     Sql(SqlCommand),
-
     #[clap(subcommand)]
     Util(UtilCommand),
     #[clap(subcommand)]
     Serve(ServeCommand),
-
     Ai,
 }
-
 impl DiciCli {
     pub async fn run(self) -> Result<()> {
         match self.command {
@@ -47,14 +40,12 @@ impl DiciCli {
         }
     }
 }
-
 #[derive(Parser)]
 #[command(version)]
 pub struct InfoMcpCli {
     #[command(subcommand)]
     pub command: InfoLookupCommand,
 }
-
 impl InfoMcpCli {
     pub async fn run(self) -> Result<()> {
         handle_lookup(self.command).await

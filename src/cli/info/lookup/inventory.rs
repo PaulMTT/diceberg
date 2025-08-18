@@ -1,26 +1,20 @@
 use crate::api::management::client::ManagementClient;
 use anyhow::Context;
 use clap::{Args, Subcommand};
-
 #[derive(Subcommand, Clone)]
 pub enum InventoryLookupCommand {
     All,
-
     Fxf(FxfArgs),
-
     Iceberg(IcebergArgs),
 }
-
 #[derive(Args, Clone)]
 pub struct FxfArgs {
     fxf: String,
 }
-
 #[derive(Args, Clone)]
 pub struct IcebergArgs {
     location: String,
 }
-
 pub async fn handle_lookup_inventory(
     inventory_lookup_command: InventoryLookupCommand,
 ) -> anyhow::Result<()> {

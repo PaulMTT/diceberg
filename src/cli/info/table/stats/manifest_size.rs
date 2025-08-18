@@ -3,7 +3,6 @@ use crate::api::traits::TableSource;
 use crate::cli::info::table::AssetArgs;
 use anyhow::{Context, Result};
 use serde_json::json;
-
 pub async fn handle_info_table_stats_manifest_size(asset_args: AssetArgs) -> Result<()> {
     let asset: DiciAsset = match asset_args {
         AssetArgs::Core(args) => args.into(),
@@ -11,9 +10,7 @@ pub async fn handle_info_table_stats_manifest_size(asset_args: AssetArgs) -> Res
     };
     let table = asset.table().await?;
     let metadata = table.metadata();
-
     let mut total_size: u64 = 0;
-
     for snapshot in metadata.snapshots() {
         let manifest_files = snapshot
             .load_manifest_list(table.file_io(), metadata)

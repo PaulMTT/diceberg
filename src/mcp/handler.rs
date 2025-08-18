@@ -8,7 +8,6 @@ use rust_mcp_sdk::schema::{
 };
 use rust_mcp_sdk::{McpServer, mcp_server::ServerHandler};
 use typed_builder::TypedBuilder;
-
 #[derive(TypedBuilder, Default, Clone)]
 pub struct DiciServerHandlerState {
     pub management_client: ManagementClient,
@@ -18,7 +17,6 @@ pub struct DiciServerHandlerState {
 pub struct DiciServerHandler {
     state: DiciServerHandlerState,
 }
-
 #[async_trait]
 impl ServerHandler for DiciServerHandler {
     async fn handle_list_tools_request(
@@ -32,7 +30,6 @@ impl ServerHandler for DiciServerHandler {
             tools: DiciToolBox::tools(),
         })
     }
-
     async fn handle_call_tool_request(
         &self,
         request: CallToolRequest,

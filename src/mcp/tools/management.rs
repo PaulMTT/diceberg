@@ -8,7 +8,6 @@ use rust_mcp_sdk::schema::{CallToolResult, schema_utils::CallToolError};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::HashMap;
-
 #[mcp_tool(
     name = "inventory_get_by_fxf",
     title = "Get Inventory by FXF",
@@ -25,7 +24,6 @@ Concepts: Inventory links a public FXF to an Iceberg location within a domain.",
 pub struct InventoryGetByFxf {
     pub fxf: String,
 }
-
 impl DiciCallableTool for InventoryGetByFxf {
     async fn call_tool(
         &self,
@@ -39,7 +37,6 @@ impl DiciCallableTool for InventoryGetByFxf {
         json_as_text(&inv)
     }
 }
-
 #[mcp_tool(
     name = "inventory_list_by_iceberg_location",
     title = "List Inventories by Iceberg Location",
@@ -56,7 +53,6 @@ Concepts: Used to discover all public datasets backed by the same physical Icebe
 pub struct InventoryListByIcebergLocation {
     pub iceberg_location: String,
 }
-
 impl DiciCallableTool for InventoryListByIcebergLocation {
     async fn call_tool(
         &self,
@@ -70,7 +66,6 @@ impl DiciCallableTool for InventoryListByIcebergLocation {
         json_as_text(&list)
     }
 }
-
 #[mcp_tool(
     name = "inventory_list_by_domain",
     title = "List Inventories by Domain",
@@ -87,7 +82,6 @@ Concepts: Domain is the top-level scope for datasets; this lists all public data
 pub struct InventoryListByDomain {
     pub domain: String,
 }
-
 impl DiciCallableTool for InventoryListByDomain {
     async fn call_tool(
         &self,
@@ -101,7 +95,6 @@ impl DiciCallableTool for InventoryListByDomain {
         json_as_text(&list)
     }
 }
-
 #[mcp_tool(
     name = "registration_list_by_path",
     title = "List Registrations by Path",
@@ -118,7 +111,6 @@ Concepts: Path deterministically maps to Iceberg location; may have multiple met
 pub struct RegistrationListByPath {
     pub path: String,
 }
-
 impl DiciCallableTool for RegistrationListByPath {
     async fn call_tool(
         &self,
@@ -132,7 +124,6 @@ impl DiciCallableTool for RegistrationListByPath {
         json_as_text(&regs)
     }
 }
-
 #[mcp_tool(
     name = "registration_get_by_iceberg_location",
     title = "Get Registration by Iceberg Location",
@@ -149,7 +140,6 @@ Concepts: Iceberg location is the bridge between Registration and Inventory.",
 pub struct RegistrationGetByIcebergLocation {
     pub iceberg_location: String,
 }
-
 impl DiciCallableTool for RegistrationGetByIcebergLocation {
     async fn call_tool(
         &self,
@@ -163,7 +153,6 @@ impl DiciCallableTool for RegistrationGetByIcebergLocation {
         json_as_text(&reg)
     }
 }
-
 #[mcp_tool(
     name = "registration_query_by_path_and_metadata",
     title = "Query Registrations by Path and Metadata",
@@ -179,11 +168,9 @@ Concepts: Enables refined search within Registrations, especially to filter by d
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationQueryByPathAndMetadata {
     pub path: String,
-
     #[serde(default)]
     pub metadata: HashMap<String, String>,
 }
-
 impl DiciCallableTool for RegistrationQueryByPathAndMetadata {
     async fn call_tool(
         &self,
@@ -197,7 +184,6 @@ impl DiciCallableTool for RegistrationQueryByPathAndMetadata {
         json_as_text(&regs)
     }
 }
-
 #[mcp_tool(
     name = "version_get",
     title = "Get Git Configuration and Build Metadata",
@@ -212,7 +198,6 @@ Concepts: GitConfig provides temporal context to dataset changes and system stat
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct VersionGet {}
-
 impl DiciCallableTool for VersionGet {
     async fn call_tool(
         &self,
@@ -223,7 +208,6 @@ impl DiciCallableTool for VersionGet {
         json_as_text(&version_info)
     }
 }
-
 #[mcp_tool(
     name = "inventory_list_updated_since",
     title = "List Inventories Updated Since Timestamp",
@@ -240,7 +224,6 @@ Concepts: Used to find datasets changed within a time window; can correlate with
 pub struct InventoryListUpdatedSince {
     pub since: String,
 }
-
 impl DiciCallableTool for InventoryListUpdatedSince {
     async fn call_tool(
         &self,
@@ -248,12 +231,10 @@ impl DiciCallableTool for InventoryListUpdatedSince {
     ) -> Result<CallToolResult, CallToolError> {
         use chrono::{DateTime, Utc};
         let client = &state.management_client;
-
         let since_dt: DateTime<Utc> = self
             .since
             .parse()
             .map_err(|e| into_call_err(format!("Invalid datetime format for 'since': {}", e)))?;
-
         let list: Vec<Inventory> = client
             .fetch_inventories_updated_since(since_dt)
             .await

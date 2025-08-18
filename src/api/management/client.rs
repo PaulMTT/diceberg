@@ -7,31 +7,25 @@ use reqwest::{Client, StatusCode};
 use std::collections::HashMap;
 use std::env;
 use typed_builder::TypedBuilder;
-
 fn management_address_from_env() -> Result<String> {
     env::var("DICI_MANAGEMENT_ADDRESS").context("DICI_MANAGEMENT_ADDRESS is not set")
 }
-
 fn default_management_address() -> String {
     management_address_from_env()
         .context("Could not determine management address")
         .unwrap()
 }
-
 pub type ManagementAddress = String;
-
 #[derive(TypedBuilder, Clone)]
 pub struct ManagementConfig {
     #[builder(default = default_management_address(), setter(into))]
     address: ManagementAddress,
 }
-
 impl Default for ManagementConfig {
     fn default() -> Self {
         Self::builder().build()
     }
 }
-
 #[derive(TypedBuilder, Clone)]
 pub struct ManagementClient {
     #[builder(default)]
@@ -39,13 +33,11 @@ pub struct ManagementClient {
     #[builder(default)]
     config: ManagementConfig,
 }
-
 impl Default for ManagementClient {
     fn default() -> Self {
         Self::builder().build()
     }
 }
-
 impl ManagementClient {
     pub async fn fetch_inventories(&self) -> Result<Vec<Inventory>> {
         self.http_client
@@ -57,7 +49,6 @@ impl ManagementClient {
             .await
             .context("Deserializing dici management response failed")
     }
-
     pub async fn fetch_inventory_by_fxf(&self, fxf: String) -> Result<Inventory> {
         let response = self
             .http_client
@@ -65,7 +56,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Err(anyhow!("Inventory not found")),
             status if status.is_success() => response
@@ -75,7 +65,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_inventories_by_iceberg_location(
         &self,
         iceberg_location: String,
@@ -89,7 +78,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Ok(vec![]),
             status if status.is_success() => response
@@ -99,7 +87,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_registrations(&self) -> Result<Vec<Registration>> {
         self.http_client
             .get(format!("{}/registration", self.config.address))
@@ -110,7 +97,6 @@ impl ManagementClient {
             .await
             .context("Deserializing dici management response failed")
     }
-
     pub async fn fetch_registrations_by_path(&self, path: String) -> Result<Vec<Registration>> {
         let response = self
             .http_client
@@ -118,7 +104,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Ok(vec![]),
             status if status.is_success() => response
@@ -128,7 +113,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_registrations_by_path_and_metadata(
         &self,
         path: String,
@@ -141,7 +125,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Ok(vec![]),
             status if status.is_success() => response
@@ -151,7 +134,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_registration_by_iceberg_location(
         &self,
         iceberg_location: String,
@@ -165,7 +147,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Err(anyhow!("Registration not found")),
             status if status.is_success() => response
@@ -175,7 +156,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_inventories_by_domain(&self, domain: String) -> Result<Vec<Inventory>> {
         let response = self
             .http_client
@@ -186,7 +166,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Ok(vec![]),
             status if status.is_success() => response
@@ -196,7 +175,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_version(&self) -> Result<GitConfig> {
         let response = self
             .http_client
@@ -204,7 +182,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management /version failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Err(anyhow!("Version information not found")),
             status if status.is_success() => response
@@ -214,7 +191,6 @@ impl ManagementClient {
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }
-
     pub async fn fetch_inventories_updated_since(
         &self,
         since: DateTime<Utc>,
@@ -226,7 +202,6 @@ impl ManagementClient {
             .send()
             .await
             .context("Request to dici management failed")?;
-
         match response.status() {
             StatusCode::NOT_FOUND => Ok(vec![]),
             status if status.is_success() => response

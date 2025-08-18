@@ -1,9 +1,8 @@
 use crate::term::ui::input::state::InputState;
-use crate::term::ui::render::RenderArea;
+use crate::term::ui::traits::{Clearable, RenderArea};
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::widgets::{Block, Borders, Paragraph};
-
 #[derive(typed_builder::TypedBuilder)]
 pub struct InputView {
     pub state: InputState,
@@ -20,5 +19,10 @@ impl RenderArea for InputView {
                 }),
         );
         frame.render_widget(input, area);
+    }
+}
+impl Clearable for InputView {
+    fn clear(&mut self) {
+        self.state.clear();
     }
 }

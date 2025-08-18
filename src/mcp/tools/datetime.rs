@@ -5,7 +5,6 @@ use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
 use rust_mcp_sdk::schema::{CallToolResult, schema_utils::CallToolError};
 use serde::{Deserialize, Serialize};
 use serde_json;
-
 #[mcp_tool(
     name = "get_date_time",
     title = "Get Current Date/Time (UTC)",
@@ -21,7 +20,6 @@ Concepts: Useful for timestamp comparisons against Inventory.updated_at, Registr
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct GetDateTimeTool {}
-
 impl DiciCallableTool for GetDateTimeTool {
     async fn call_tool(
         &self,

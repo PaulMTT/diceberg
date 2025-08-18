@@ -1,18 +1,17 @@
-use crate::api::client::asset::{CoreAsset, IcebergAsset};
 use crate::api::client::DiciAsset;
-use crate::api::traits::{ManuallySqlAble, SqlAble};
+use crate::api::client::asset::{CoreAsset, IcebergAsset};
+use crate::api::traits::ManuallySqlAble;
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
+use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
 use arrow_json::ArrayWriter;
 use datafusion::prelude::SQLOptions;
 use datafusion::sql::TableReference;
-use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
-use rust_mcp_sdk::schema::schema_utils::CallToolError;
+use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
 use rust_mcp_sdk::schema::CallToolResult;
+use rust_mcp_sdk::schema::schema_utils::CallToolError;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-
 #[mcp_tool(
     name = "asset_execute_sql_by_fxf",
     title = "Execute SQL Query on Dataset by FXF",
@@ -29,10 +28,8 @@ which represents the resolved dataset table.",
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByFxf {
     pub fxf: String,
-
     pub sql: String,
 }
-
 impl DiciCallableTool for AssetExecuteSqlByFxf {
     async fn call_tool(
         &self,
@@ -43,14 +40,12 @@ impl DiciCallableTool for AssetExecuteSqlByFxf {
             dici_client: state.dici_client.clone(),
             management_client: state.management_client.clone(),
         };
-
         let x: Vec<Value> = run_sql_and_return_json(&asset, &self.sql)
             .await
             .map_err(into_call_err)?;
         json_as_text(&x)
     }
 }
-
 #[mcp_tool(
     name = "asset_execute_sql_by_iceberg",
     title = "Execute SQL Query on Dataset by Iceberg Location",
@@ -67,12 +62,9 @@ which represents the bound Iceberg table.",
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByIceberg {
     pub location: String,
-
     pub schema_table: String,
-
     pub sql: String,
 }
-
 impl DiciCallableTool for AssetExecuteSqlByIceberg {
     async fn call_tool(
         &self,
@@ -85,14 +77,12 @@ impl DiciCallableTool for AssetExecuteSqlByIceberg {
                 .build(),
             client: state.dici_client.clone(),
         };
-
         let x: Vec<Value> = run_sql_and_return_json(&asset, &self.sql)
             .await
             .map_err(into_call_err)?;
         json_as_text(&x)
     }
 }
-
 async fn run_sql_and_return_json<T>(asset: &DiciAsset, sql: &str) -> anyhow::Result<T>
 where
     T: DeserializeOwned,
@@ -108,7 +98,6 @@ where
         .sql_with_table_reference_and_options(sql, table_reference, options)
         .await?;
     let results = dataframe.collect().await?;
-
     let mut buf = Vec::new();
     {
         let mut writer = ArrayWriter::new(&mut buf);
@@ -117,7 +106,6 @@ where
         }
         writer.finish()?;
     }
-
     let json_values: T = serde_json::from_slice(&buf)?;
     Ok(json_values)
 }

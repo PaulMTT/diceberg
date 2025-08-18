@@ -1,9 +1,8 @@
-use crate::term::ui::render::RenderArea;
 use crate::term::ui::status::state::StatusState;
+use crate::term::ui::traits::RenderArea;
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::widgets::Paragraph;
-
 #[derive(typed_builder::TypedBuilder)]
 pub struct StatusView {
     pub state: StatusState,

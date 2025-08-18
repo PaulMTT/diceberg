@@ -4,17 +4,14 @@ use anyhow::{Context, Result};
 use datafusion::common::TableReference;
 use iceberg::TableIdent;
 use typed_builder::TypedBuilder;
-
 pub type CoreFxf = String;
 pub type IcebergLocation = String;
 pub type IcebergSchemaTable = String;
-
 #[derive(TypedBuilder, Clone)]
 pub struct CoreAsset {
     #[builder(setter(into))]
     pub fxf: CoreFxf,
 }
-
 #[derive(TypedBuilder, Clone)]
 pub struct IcebergAsset {
     #[builder(setter(into))]
@@ -22,7 +19,6 @@ pub struct IcebergAsset {
     #[builder(setter(into))]
     pub schema_table: IcebergSchemaTable,
 }
-
 impl ClientSource for DiciAsset {
     fn client(&self) -> &DiciClient {
         match self {
@@ -34,7 +30,6 @@ impl ClientSource for DiciAsset {
         }
     }
 }
-
 impl TableReferenceSource for DiciAsset {
     async fn table_reference(&self) -> Result<TableReference> {
         Ok(match self {
@@ -53,7 +48,6 @@ impl TableReferenceSource for DiciAsset {
         })
     }
 }
-
 impl TableIdentitySource for DiciAsset {
     async fn table_ident(&self) -> Result<TableIdent> {
         match self {
@@ -66,7 +60,6 @@ impl TableIdentitySource for DiciAsset {
                     .fetch_inventory_by_fxf(fxf.into())
                     .await
                     .context("Could not fetch inventory")?;
-
                 TableIdent::from_strs([
                     inventory.id.iceberg_location.iceberg_location,
                     inventory.id.schema_table.schema_table,

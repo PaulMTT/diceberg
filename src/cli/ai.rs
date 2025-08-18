@@ -34,7 +34,6 @@ pub async fn handle_ai() -> Result<()> {
         .await?;
     let (source, sink) = Duplex::unbounded::<RequestBuilder, ChatEvent, CancelCtl>();
     let _worker = MistralDuplexSink::new(sink, Arc::new(model)).spawn();
-
     let mut ui = MistralDuplexSourceUi::new(source);
     ui.run()
 }

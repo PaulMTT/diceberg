@@ -2,16 +2,13 @@ use mistralrs::{Response, TextMessageRole};
 use ratatui::prelude::{Color, Line, Modifier, Span, Style};
 use ratatui::text::Text;
 use tui_markdown::from_str as md_from_str;
-
 const THINK_OPEN: &str = "<think>";
 const THINK_CLOSE: &str = "</think>";
-
 fn think_style() -> Style {
     Style::default()
         .fg(Color::LightBlue)
         .add_modifier(Modifier::DIM)
 }
-
 fn patch_lines_style(lines: &mut [Line<'_>], style: Style) {
     for line in lines.iter_mut() {
         for span in line.spans.iter_mut() {
@@ -19,7 +16,6 @@ fn patch_lines_style(lines: &mut [Line<'_>], style: Style) {
         }
     }
 }
-
 fn append_segment_lines<'a>(
     out: &mut Vec<Line<'a>>,
     mut seg_lines: Vec<Line<'a>>,
@@ -32,16 +28,13 @@ fn append_segment_lines<'a>(
     if join_with_prev && !seg_lines.is_empty() {
         let dst = out.last_mut().unwrap();
         let mut first = seg_lines.remove(0);
-
         if !dst.spans.is_empty() && !first.spans.is_empty() {
             dst.spans.push(Span::raw(" "));
         }
-
         dst.spans.append(&mut first.spans);
     }
     out.append(&mut seg_lines);
 }
-
 fn starts_markdown_block(s: &str) -> bool {
     let s = s.trim_start_matches(|c| c == '\r' || c == ' ' || c == '\t');
     if s.starts_with("```") || s.starts_with("~~~") {
@@ -50,7 +43,6 @@ fn starts_markdown_block(s: &str) -> bool {
     if s.starts_with('#') || s.starts_with("> ") || s.starts_with("- ") || s.starts_with("* ") {
         return true;
     }
-
     let mut it = s.chars().peekable();
     let mut saw_digit = false;
     while let Some(c) = it.peek().copied() {
@@ -68,7 +60,6 @@ fn starts_markdown_block(s: &str) -> bool {
     }
     false
 }
-
 fn strip_leading_newlines<'a>(mut s: &'a str) -> &'a str {
     loop {
         if let Some(rest) = s.strip_prefix("\r\n") {
@@ -87,14 +78,12 @@ fn strip_leading_newlines<'a>(mut s: &'a str) -> &'a str {
     }
     s
 }
-
 fn markdown_text_with_think<'a>(src: &'a str) -> Text<'a> {
     let mut lines: Vec<Line<'a>> = Vec::new();
     let mut inside = false;
     let mut rem = src;
     let mut prev_ended_with_nl = true;
     let mut force_join_next = false;
-
     loop {
         let tag = if inside { THINK_CLOSE } else { THINK_OPEN };
         if let Some(i) = rem.find(tag) {
@@ -111,9 +100,7 @@ fn markdown_text_with_think<'a>(src: &'a str) -> Text<'a> {
                 prev_ended_with_nl = before.ends_with('\n');
                 force_join_next = false;
             }
-
             rem = &rem[i + tag.len()..];
-
             if inside {
                 let stripped = strip_leading_newlines(rem);
                 if stripped.len() != rem.len() {
@@ -122,7 +109,6 @@ fn markdown_text_with_think<'a>(src: &'a str) -> Text<'a> {
                     rem = stripped;
                 }
             }
-
             inside = !inside;
         } else {
             let before = rem;
@@ -139,10 +125,8 @@ fn markdown_text_with_think<'a>(src: &'a str) -> Text<'a> {
             break;
         }
     }
-
     Text::from(lines)
 }
-
 fn prepend_who<'a>(mut t: Text<'a>, who: &str) -> Text<'a> {
     if let Some(idx) = t.lines.iter().position(|ln| ln.width() > 0) {
         let line = &mut t.lines[idx];
@@ -155,7 +139,6 @@ fn prepend_who<'a>(mut t: Text<'a>, who: &str) -> Text<'a> {
     }
     t
 }
-
 fn to_owned_text(t: Text<'_>) -> Text<'static> {
     let owned_lines: Vec<Line<'static>> = t
         .lines
@@ -171,7 +154,6 @@ fn to_owned_text(t: Text<'_>) -> Text<'static> {
         .collect();
     Text::from(owned_lines)
 }
-
 pub fn message_to_lines(role: &TextMessageRole, text: &str) -> Vec<Line<'static>> {
     let who = match role {
         TextMessageRole::System => "[system]",
@@ -179,14 +161,10 @@ pub fn message_to_lines(role: &TextMessageRole, text: &str) -> Vec<Line<'static>
         TextMessageRole::Assistant => "[ai]",
         _ => "[?]",
     };
-
     let t = markdown_text_with_think(text);
-
     let t_owned = to_owned_text(t);
-
     prepend_who(t_owned, who).lines
 }
-
 fn chunk_delta_text(chunk: &mistralrs::ChatCompletionChunkResponse) -> Option<String> {
     let mut out = String::new();
     for ch in &chunk.choices {
@@ -196,7 +174,6 @@ fn chunk_delta_text(chunk: &mistralrs::ChatCompletionChunkResponse) -> Option<St
     }
     if out.is_empty() { None } else { Some(out) }
 }
-
 pub fn assistant_text_from_responses(resps: &[Response]) -> String {
     let mut out = String::new();
     for r in resps {

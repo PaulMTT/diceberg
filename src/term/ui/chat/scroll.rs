@@ -5,7 +5,6 @@ pub struct ScrollModel {
     view_height: u16,
     content_height: u16,
 }
-
 impl ScrollModel {
     pub fn reconcile(&mut self, content_height: u16, view_height: u16) {
         self.content_height = content_height;

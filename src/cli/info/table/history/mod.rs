@@ -4,19 +4,15 @@ use crate::cli::info::table::history::snapshot::handle_info_table_snapshot;
 use anyhow::Result;
 use clap::Subcommand;
 use snapshot::SnapshotCommand;
-
 mod all;
 pub mod snapshot;
-
 #[derive(Subcommand, Clone)]
 pub enum HistoryCommand {
     #[clap(subcommand)]
     All(AssetArgs),
-
     #[clap(subcommand)]
     Snapshot(SnapshotCommand),
 }
-
 pub async fn handle_info_table_history(history_command: HistoryCommand) -> Result<()> {
     match history_command {
         HistoryCommand::All(args) => handle_info_table_history_all(args).await,

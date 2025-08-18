@@ -7,7 +7,6 @@ use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
 use rust_mcp_sdk::schema::CallToolResult;
 use rust_mcp_sdk::schema::schema_utils::CallToolError;
 use serde::{Deserialize, Serialize};
-
 #[mcp_tool(
     name = "asset_get_schema_by_fxf",
     title = "Get Dataset Schema by FXF",
@@ -25,7 +24,6 @@ Concepts: FXF uniquely identifies an Inventory; schema is resolved via Iceberg l
 pub struct AssetGetSchemaByFxf {
     pub fxf: String,
 }
-
 impl DiciCallableTool for AssetGetSchemaByFxf {
     async fn call_tool(
         &self,
@@ -36,12 +34,10 @@ impl DiciCallableTool for AssetGetSchemaByFxf {
             dici_client: state.dici_client.clone(),
             management_client: state.management_client.clone(),
         };
-
         let fields = asset.schema().await.map_err(into_call_err)?;
         json_as_text(&fields)
     }
 }
-
 #[mcp_tool(
     name = "asset_get_schema_by_iceberg",
     title = "Get Dataset Schema by Iceberg Location",
@@ -57,10 +53,8 @@ Concepts: Iceberg location uniquely identifies a Registration and Inventory mapp
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetGetSchemaByIceberg {
     pub location: String,
-
     pub schema_table: String,
 }
-
 impl DiciCallableTool for AssetGetSchemaByIceberg {
     async fn call_tool(
         &self,
@@ -73,7 +67,6 @@ impl DiciCallableTool for AssetGetSchemaByIceberg {
                 .build(),
             client: state.dici_client.clone(),
         };
-
         let fields = asset.schema().await.map_err(into_call_err)?;
         json_as_text(&fields)
     }

@@ -2,27 +2,21 @@ use crate::api::management::client::ManagementClient;
 use anyhow::Context;
 use clap::{Args, Subcommand};
 use std::collections::HashMap;
-
 #[derive(Subcommand, Clone)]
 pub enum RegistrationLookupCommand {
     All,
-
     Path(PathArgs),
-
     Filtered(MetadataArgs),
 }
 #[derive(Args, Clone)]
 pub struct MetadataArgs {
     path: String,
-
     pairs: Vec<String>,
 }
-
 #[derive(Args, Clone)]
 pub struct PathArgs {
     path: String,
 }
-
 pub async fn handle_lookup_registration(
     registration_lookup_command: RegistrationLookupCommand,
 ) -> anyhow::Result<()> {

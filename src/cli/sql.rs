@@ -9,22 +9,17 @@ use clap::{Args, Subcommand, ValueEnum};
 use datafusion::prelude::{DataFrame, SQLOptions};
 use std::io;
 use std::io::Write;
-
 #[derive(Subcommand, Clone)]
 pub enum SqlCommand {
     Core(SqlCoreArgs),
-
     Iceberg(SqlIcebergArgs),
 }
-
 #[derive(Args, Clone)]
 pub struct SqlArgs {
     pub query: String,
-
     #[arg(short, long, value_enum, default_value_t)]
     pub format: SqlOutputFormat,
 }
-
 #[derive(Args, Clone)]
 pub struct SqlCoreArgs {
     #[clap(flatten)]
@@ -32,7 +27,6 @@ pub struct SqlCoreArgs {
     #[clap(flatten)]
     pub sql: SqlArgs,
 }
-
 #[derive(Args, Clone)]
 pub struct SqlIcebergArgs {
     #[clap(flatten)]
@@ -40,13 +34,11 @@ pub struct SqlIcebergArgs {
     #[clap(flatten)]
     pub sql: SqlArgs,
 }
-
 #[derive(Debug, Clone, ValueEnum)]
 pub enum SqlOutputFormat {
     JSON,
     IPC,
 }
-
 impl SqlOutputFormat {
     pub async fn to_writer<W: Write>(&self, writer: W, df: DataFrame) -> Result<()> {
         let records: Vec<RecordBatch> = df.clone().collect().await?;
@@ -69,13 +61,11 @@ impl SqlOutputFormat {
         }
     }
 }
-
 impl Default for SqlOutputFormat {
     fn default() -> Self {
         Self::JSON
     }
 }
-
 pub async fn handle_sql(sql_command: SqlCommand) -> Result<()> {
     let (asset, query, format): (DiciAsset, String, SqlOutputFormat) = match sql_command {
         SqlCommand::Core(SqlCoreArgs {
