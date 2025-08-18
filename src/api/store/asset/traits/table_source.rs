@@ -8,7 +8,6 @@ pub trait TableIdentitySource {
 }
 pub trait TableSource: TableIdentitySource + CatalogSource {
     fn table(&self) -> impl Future<Output = Result<Table>>;
-    fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
 }
 impl<T> TableSource for T
 where
@@ -27,6 +26,16 @@ where
             .await
             .context("Failed to load table")
     }
+}
+
+pub trait SchemaSource: TableSource {
+    fn schema(&self) -> impl Future<Output = Result<Vec<NestedFieldRef>>>;
+}
+
+impl<T> SchemaSource for T
+where
+    T: TableSource,
+{
     async fn schema(&self) -> Result<Vec<NestedFieldRef>> {
         Ok(self
             .table()

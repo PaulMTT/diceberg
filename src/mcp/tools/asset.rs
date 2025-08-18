@@ -1,12 +1,12 @@
 use crate::api::store::asset::core::CoreAsset;
 use crate::api::store::asset::dici::{CoreArgs, DiciAsset, IcebergArgs};
 use crate::api::store::asset::iceberg::IcebergAsset;
-use crate::api::store::asset::traits::table_source::TableSource;
+use crate::api::store::asset::traits::table_source::SchemaSource;
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
-use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
-use rust_mcp_sdk::schema::CallToolResult;
+use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
+use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
 use rust_mcp_sdk::schema::schema_utils::CallToolError;
+use rust_mcp_sdk::schema::CallToolResult;
 use serde::{Deserialize, Serialize};
 #[mcp_tool(
     name = "asset_get_schema_by_fxf",
