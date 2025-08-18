@@ -1,4 +1,4 @@
-use crate::api::dici::asset::DiciAsset;
+use crate::api::dici::asset::{CoreArgs, DiciAsset, IcebergArgs};
 use crate::api::dici::core::CoreAsset;
 use crate::api::dici::iceberg::IcebergAsset;
 use crate::api::traits::manually_sqlable::ManuallySqlAble;
@@ -36,11 +36,12 @@ impl DiciCallableTool for AssetExecuteSqlByFxf {
         &self,
         state: &DiciServerHandlerState,
     ) -> Result<CallToolResult, CallToolError> {
-        let asset = DiciAsset::Core {
-            asset: CoreAsset::builder().fxf(&self.fxf).build(),
-            dici_catalog: state.dici_catalog.clone(),
-            management_client: state.management_client.clone(),
-        };
+        let asset: DiciAsset = CoreArgs::builder()
+            .asset(CoreAsset::builder().fxf(&self.fxf).build())
+            .dici_catalog(state.dici_catalog.clone())
+            .management_client(state.management_client.clone())
+            .build()
+            .into();
         let x: Vec<Value> = run_sql_and_return_json(&asset, &self.sql)
             .await
             .map_err(into_call_err)?;
@@ -71,13 +72,16 @@ impl DiciCallableTool for AssetExecuteSqlByIceberg {
         &self,
         state: &DiciServerHandlerState,
     ) -> Result<CallToolResult, CallToolError> {
-        let asset = DiciAsset::Iceberg {
-            asset: IcebergAsset::builder()
-                .location(&self.location)
-                .schema_table(&self.schema_table)
-                .build(),
-            dici_catalog: state.dici_catalog.clone(),
-        };
+        let asset: DiciAsset = IcebergArgs::builder()
+            .asset(
+                IcebergAsset::builder()
+                    .location(&self.location)
+                    .schema_table(&self.schema_table)
+                    .build(),
+            )
+            .dici_catalog(state.dici_catalog.clone())
+            .build()
+            .into();
         let x: Vec<Value> = run_sql_and_return_json(&asset, &self.sql)
             .await
             .map_err(into_call_err)?;

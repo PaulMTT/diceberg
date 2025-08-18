@@ -1,8 +1,4 @@
 use crate::api::dici::asset::DiciAsset;
-use crate::api::dici::catalog::DiciCatalog;
-use crate::api::dici::core::CoreAsset;
-use crate::api::dici::iceberg::IcebergAsset;
-use crate::api::management::client::ManagementClient;
 use crate::cli::info::table::history::{HistoryCommand, handle_info_table_history};
 use crate::cli::info::table::partition::handle_info_table_partition;
 use crate::cli::info::table::schema::handle_info_table_schema;
@@ -35,11 +31,7 @@ pub struct CoreAssetArgs {
 }
 impl Into<DiciAsset> for CoreAssetArgs {
     fn into(self) -> DiciAsset {
-        DiciAsset::Core {
-            asset: CoreAsset::builder().fxf(self.fxf).build(),
-            dici_catalog: DiciCatalog::default(),
-            management_client: ManagementClient::default(),
-        }
+        DiciAsset::core(self.fxf)
     }
 }
 #[derive(Args, Clone)]
@@ -49,13 +41,7 @@ pub struct IcebergAssetArgs {
 }
 impl Into<DiciAsset> for IcebergAssetArgs {
     fn into(self) -> DiciAsset {
-        DiciAsset::Iceberg {
-            asset: IcebergAsset::builder()
-                .location(self.location)
-                .schema_table(self.schema_table)
-                .build(),
-            dici_catalog: DiciCatalog::default(),
-        }
+        DiciAsset::iceberg(self.location, self.schema_table)
     }
 }
 pub async fn handle_info_table(info_table_command: InfoTableCommand) -> Result<()> {
