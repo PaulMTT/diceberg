@@ -1,13 +1,17 @@
 use crate::term::duplex::Duplex;
 use crate::term::llm_chat_sink::{CancelCtl, ChatEvent, MistralDuplexSink};
 use crate::term::llm_chat_ui_source::MistralDuplexSourceUi;
-use anyhow::Result;
 use mistralrs::{
-    IsqType, McpClientConfig, McpServerConfig, McpServerSource, ModelDType,
+    IsqType, ModelDType,
     PagedAttentionMetaBuilder, RequestBuilder, TextModelBuilder,
 };
 use std::sync::Arc;
+use anyhow::Result;
+
+#[cfg(feature = "mcp")]
+use mistralrs::{McpServerConfig, McpClientConfig, McpServerSource};
 pub async fn handle_ai() -> Result<()> {
+    #[cfg(feature = "mcp")]
     let mcp = McpClientConfig {
         servers: vec![McpServerConfig {
             name: "The data and insights cloud integration (DICI) model context protocol (MCP) server.".into(),
@@ -28,10 +32,10 @@ pub async fn handle_ai() -> Result<()> {
     let model = TextModelBuilder::new("Qwen/Qwen3-4B")
         .with_dtype(ModelDType::Auto)
         .with_isq(IsqType::AFQ8)
-        .with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?
-        .with_mcp_client(mcp)
-        .build()
-        .await?;
+        .with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?;
+    #[cfg(feature = "mcp")]
+    let model = model.with_mcp_client(mcp);
+    let model = model.build().await?;
     let (source, sink) = Duplex::unbounded::<RequestBuilder, ChatEvent, CancelCtl>();
     let _worker = MistralDuplexSink::new(sink, Arc::new(model)).spawn();
     let mut ui = MistralDuplexSourceUi::new(source);

@@ -6,6 +6,31 @@ It provides a **fast, interactive, keyboard-driven interface** for chatting with
 
 ---
 
+## 🚀 Installation
+
+The AI TUI requires one of the **Mistral backends** to be enabled via Cargo features.  
+
+- On **macOS**, use the `metal` feature.  
+- On **Linux**, you’ll typically use `cuda` (or another supported backend).  
+- If you also want to enable the **MCP server**, add the `mcp` feature.  
+
+Examples:
+
+```bash
+# macOS (Metal backend only)
+cargo install --path . --features metal
+
+# Linux (CUDA backend only)
+cargo install --path . --features cuda
+
+# macOS with both AI + MCP server
+cargo install --path . --features "metal mcp"
+````
+
+⚠️ Only one backend should be chosen at a time (e.g. don’t enable both `metal` and `cuda`).
+
+---
+
 ## ✨ Features
 
 * **TUI built with ratatui** — smooth, responsive terminal UI
@@ -84,80 +109,24 @@ The app is organized into **modules**, with a strict **State + View** separation
 ### Modules
 
 * **`term/ui/chat`** — Chat history
-
-    * `ChatState`: stores turns, responses, scroll offsets
-    * `ChatView`: renders conversation and scrollbar
-
 * **`term/ui/input`** — User input
-
-    * `InputState`: buffer + think flag
-    * `InputView`: renders input box
-
 * **`term/ui/legend`** — Keybindings legend
-
-    * `LegendState`: busy, pending, undo, think flags
-    * `LegendView`: renders keybinding hints
-
 * **`term/ui/status`** — Status bar
-
-    * `StatusState`: current status text
-    * `StatusView`: renders single line
-
-* **`term/ui/traits`** — Shared traits
-
-    * `Render`, `RenderArea`, `Clearable`
-
+* **`term/ui/traits`** — Shared rendering traits
 * **`term/duplex`** — Message passing abstraction
-
-    * `DuplexSource` / `DuplexSink` traits
-    * `SourceHandle` / `SinkHandle` implementations
-    * `bounded` and `unbounded` duplex channels
-
-* **`term/llm_chat_sink`** — Backend connector
-
-    * `MistralDuplexSink` streams LLM responses
-    * Handles cancel, shutdown, and graceful termination
-
-* **`term/llm_chat_ui_source`** — Frontend controller
-
-    * `MistralDuplexSourceUi`: main event loop and TUI manager
-    * Runs user input handling, queueing, and rendering
+* **`term/llm_chat_sink`** — Backend connector (Mistral streaming)
+* **`term/llm_chat_ui_source`** — Frontend controller / main TUI manager
 
 ---
 
 ## 🔄 Flow of a Turn
 
-Here’s how a single interaction works:
-
-1. **User Input**
-
-    * User types → presses **Enter**
-    * Input trimmed → `PendingReq` created
-
-2. **Dispatch**
-
-    * If idle → request sent immediately
-    * If busy → request queued
-
-3. **Streaming**
-
-    * `MistralDuplexSink` streams `Response::Chunk` messages
-    * Appends into current `Turn` → rendered live in chat
-
-4. **Completion**
-
-    * On `ChatEvent::Complete`:
-
-        * Mark turn as complete
-        * Show token usage & speed in status bar
-
-5. **Next Request**
-
-    * If queue non-empty → dequeue and start automatically
-
-6. **Cancellation / Undo**
-
-    * **Ctrl+C** cancels current turn or removes last completed one
+1. **User Input** → create request
+2. **Dispatch** → send immediately if idle, otherwise queue
+3. **Streaming** → chunks stream from Mistral, appended live
+4. **Completion** → mark turn complete, show stats
+5. **Next Request** → auto-start next queued prompt
+6. **Cancel/Undo** → `Ctrl+C` cancels or reverts
 
 ---
 
@@ -167,6 +136,6 @@ The app uses [`tui-markdown`](https://crates.io/crates/tui-markdown) with extra 
 
 * Detects Markdown blocks (headers, lists, code, quotes)
 * Joins inline text gracefully between chunks
-* Applies special styling for `<think>` regions
+* Styles `<think>` regions in **dim blue**
 
 This makes answers visually structured, not raw plaintext.

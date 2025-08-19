@@ -3,7 +3,37 @@ name = "diceberg"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = []
+
+# One of the mistral backends need to be active
+ai = []
+
+# Each backend pulls in mistralrs + ratatui + tui-markdown
+cuda       = ["ai", "mistralrs/cuda", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+cudnn      = ["ai", "mistralrs/cudnn", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+metal      = ["ai", "mistralrs/metal", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+flash-attn = ["ai", "mistralrs/flash-attn", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+accelerate = ["ai", "mistralrs/accelerate", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+mkl        = ["ai", "mistralrs/mkl", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+nccl       = ["ai", "mistralrs/nccl", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+ring       = ["ai", "mistralrs/ring", "mistralrs", "ratatui", "tui-markdown", "crossterm", "hf-hub"]
+
+mcp = ["rust-mcp-sdk"]
+
+
 [dependencies]
+# AI chat features
+crossterm = { version = "0.29.0" , optional = true}
+mistralrs = { git = "https://github.com/EricLBuehler/mistral.rs.git", optional = true }
+ratatui = { version = "0.29.0", features = ["unstable-rendered-line-info"], optional = true  }
+tui-markdown = { version = "0.3.5", features = ["highlight-code"], optional = true  }
+hf-hub = { version = "0.4.3", default-features = false, features = ["tokio", "native-tls"] , optional = true} # force native tls so mistral can pull from hugging face hub
+
+# MCP server features
+rust-mcp-sdk = { version = "0.5.1" , features = ["rust-mcp-macros"], optional = true}
+
+# Regular deps
 anyhow = "1.0.98"
 arrow = { version = "55.1.0", features = ["json", "ipc"] }
 arrow-ipc = { version = "55.1.0" }
@@ -11,20 +41,14 @@ arrow-json = { version = "55.1.0" }
 async-trait = "0.1.88"
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.39", features = ["derive"] }
-crossterm = "0.29.0"
 datafusion = { version = "47.0.0" }
-hf-hub = { version = "0.4.3", default-features = false, features = ["tokio", "native-tls"] } # force native tls so mistral can pull from hugging face hub
 iceberg = { version = "0.5.1", features = ["storage-all"] }
 iceberg-catalog-glue = { version = "0.5.1" }
 iceberg-datafusion = "0.5.1"
-mistralrs = { git = "https://github.com/EricLBuehler/mistral.rs.git", features = ["metal"] } #for macos, other arch supported, need to feature flag
 polars = { version = "0.48.1", features = ["polars-io", "ipc", "ipc_streaming"] }
-ratatui = { version = "0.29.0", features = ["unstable-rendered-line-info"] }
 reqwest = { version = "0.12.19" }
-rust-mcp-sdk = { version = "0.5.1" , features = ["rust-mcp-macros"]}
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 tokio = { version = "1.45.1", features = ["full"] }
-tui-markdown = { version = "0.3.5", features = ["highlight-code"] }
 typed-builder = "0.21.0"
 

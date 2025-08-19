@@ -75,9 +75,15 @@ The server includes an embedded **Conceptual Knowledge Document**, defining the 
 
 ## Entrypoint
 
-The MCP server runs via:
+The MCP server runs via the `Serve` subcommand, which is only available when the **`mcp` feature** is enabled at build time.
 
-```
+```bash
+cargo install --path . --features mcp
+````
+
+Then run the server:
+
+```bash
 dici serve mcp
 ```
 
