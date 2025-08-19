@@ -4,7 +4,7 @@
 
 For now we have, in staging, the inventory:
 
-```
+```json
 {
   "id": {
     "domain": {
@@ -51,7 +51,8 @@ Lookup registrations:
 aws-vault exec staging -- dici info lookup registration all
 aws-vault exec staging -- dici info lookup registration path erp_pro_10
 aws-vault exec staging -- dici info lookup registration filtered erp domain erp-pro-10-dici.test-socrata.com
-
+```
+```json
 [
   {
     "id": {
@@ -74,7 +75,8 @@ Lookup inventories:
 aws-vault exec staging -- dici info lookup inventory all
 aws-vault exec staging -- dici info lookup inventory fxf yfc6-7rgw
 aws-vault exec staging -- dici info lookup inventory iceberg _ac642f8374a4a7c17e855f828c41cf48
-
+```
+```json
 [
   {
     "id": {
@@ -101,14 +103,15 @@ Schema:
 ```shell
 aws-vault exec staging -- dici info table schema iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
 aws-vault exec staging -- dici info table schema core yfc6-7rgw
-
+```
+```json
 [
   {
     "id": 1,
     "name": "vendorname",
     "required": false,
     "type": "string"
-  },
+  }
 ]
 ```
 
@@ -116,12 +119,13 @@ Table snapshot history:
 ```shell
 aws-vault exec staging -- dici info table history all iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
 aws-vault exec staging -- dici info table history all core yfc6-7rgw
-
+```
+```json
 [
   {
     "snapshot-id": 6552266534160396918,
     "timestamp-ms": 1744974274978
-  },
+  }
 ]
 ```
 
@@ -129,7 +133,8 @@ Table snapshot details:
 ```shell
 aws-vault exec staging -- dici info table history snapshot core yfc6-7rgw 5276000349694124598
 aws-vault exec staging -- dici info table history snapshot iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors 5276000349694124598
-
+```
+```json
 {
   "snapshot-id": 5276000349694124598,
   "sequence-number": 89,
@@ -161,7 +166,8 @@ Table manifest size in bytes:
 ```shell
 aws-vault exec staging -- dici info table stats manifest-size core yfc6-7rgw
 aws-vault exec staging -- dici info table stats manifest-size iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
-
+```
+```json
 {
   "manifest_size_bytes": 347695
 }
@@ -171,7 +177,8 @@ Table data size in bytes:
 ```shell
 aws-vault exec staging -- dici info table stats data-size core yfc6-7rgw
 aws-vault exec staging -- dici info table stats data-size iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
-
+```
+```json
 {
   "data_size_bytes": 768871
 }
@@ -181,7 +188,8 @@ Table partitions:
 ```shell
 aws-vault exec staging -- dici info table partition core yfc6-7rgw
 aws-vault exec staging -- dici info table partition iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors
-
+```
+```json
 {
   "spec-id": 0,
   "fields": []
@@ -192,8 +200,8 @@ Execute sql:
 ```shell
 aws-vault exec staging -- dici sql iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors 'select count(*) from dbo_vendors'
 aws-vault exec staging -- dici sql core yfc6-7rgw "select count(*) from 'yfc6-7rgw'"
-
-
+```
+```json
 [{"count(*)":463}]
 ```
 
@@ -201,8 +209,8 @@ Execute sql, outputting arrow IPC, and then reading and printing the dataframe:
 ```shell
 aws-vault exec staging -- dici sql iceberg _ac642f8374a4a7c17e855f828c41cf48 dbo_vendors 'select count(*) from dbo_vendors' --format ipc | dici util ipc print
 aws-vault exec staging -- dici sql core yfc6-7rgw "select count(*) from 'yfc6-7rgw'" --format ipc | dici util ipc print
-
-
+```
+```text
 shape: (1, 1)
 ┌──────────┐
 │ count(*) │
@@ -216,7 +224,8 @@ shape: (1, 1)
 You can also execute sql against raw dataframes in ipc format, the table identifier will be `this`:
 ```shell
 aws-vault exec staging -- dici sql core yfc6-7rgw "select * from 'yfc6-7rgw' limit 100" --format ipc | dici util ipc query "select * from this order by vendorname limit 1" --format ipc | dici util ipc print
-
+```
+```text
 shape: (1, 15)
 ┌────────────┬──────────┬──────────────────┬────────────────┬───┬────────────┬───────────────────┬────────────────────┬────────────────────┐
 │ vendorname ┆ vendorid ┆ vendoraddress1   ┆ vendoraddress2 ┆ … ┆ fiscalyear ┆ vendorcontactname ┆ vendorcontactphone ┆ vendorcontactemail │
