@@ -1,5 +1,11 @@
 # Installation
 
+## Requirements
+### MacOS
+[macos requirements](installation/macos.md)
+
+## Installing
+
 Install the release version of the tool:
 
 ```shell
