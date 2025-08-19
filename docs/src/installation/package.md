@@ -2,7 +2,7 @@
 
 ## Requirements
 ### MacOS
-[macos requirements](installation/macos.md)
+[macos requirements](macos.md)
 
 ## Installing
 
