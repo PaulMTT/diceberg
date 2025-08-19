@@ -30,9 +30,14 @@ pub async fn handle_ai() -> Result<()> {
         ..Default::default()
     };
     let model = TextModelBuilder::new("Qwen/Qwen3-4B")
-        .with_dtype(ModelDType::Auto)
-        .with_isq(IsqType::AFQ8)
-        .with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?;
+        .with_dtype(ModelDType::Auto);
+    
+    #[cfg(feature = "metal")]
+    let model = model.with_isq(IsqType::AFQ8);
+    #[cfg(not(feature = "metal"))]
+    let model = model.with_isq(IsqType::Q8K);
+
+    let model = model.with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?;
     #[cfg(feature = "mcp")]
     let model = model.with_mcp_client(mcp);
     let model = model.build().await?;
