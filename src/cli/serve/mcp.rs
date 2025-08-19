@@ -28,7 +28,7 @@ async fn run_mcp() -> SdkResult<()> {
         instructions: Some(r#"
 # **DICI Conceptual Knowledge Document**
 This document defines the **entities**, **fields**, and **relationships** in the DICI domain model.
-It also explains how these concepts interconnect, how to traverse from one to another, and what constraints and semantics apply.
+It explains how these concepts interconnect, how to traverse between them, and what constraints and semantics apply.
 ---
 ## **1. Core Entities**
 ---
@@ -40,140 +40,123 @@ It provides top-level scoping: no dataset exists outside a domain.
 | -------- | ------ | ------------------------------------------------------------------------------------------------------------------- |
 | `domain` | String | Unique domain name (e.g., `"cityofchicago"`, `"agency_xyz"`). Case-insensitive in meaning, but stored consistently. |
 **Key Concepts:**
-* A domain is **authoritative** for its datasets — an FXF in one domain is unrelated to the same FXF in another.
+* A domain is authoritative for its datasets.
 * Inventories are always scoped to a single domain.
-* Registrations may carry domain information in metadata, but it is not guaranteed unless explicitly set.
+* Registrations may carry domain metadata, but it is not guaranteed unless explicitly set.
 ---
 ### **1.2 Inventory**
-An **Inventory** record maps a public-facing dataset to its internal Iceberg storage table.
+An **Inventory** record is the public-facing representation of a dataset inside a domain.
 **Purpose:**
-* Serves as the bridge between **public identifiers** (FXF) and **internal storage identifiers** (Iceberg location).
-* Holds metadata needed to identify and track a dataset within a domain.
+* Maps internal Iceberg assets to stable, external-facing identifiers (`fourByFour`).
+* Serves as the bridge between **internal identifiers** (`icebergLocation`, `schemaTable`) and **public identifiers** (`fourByFour`).
 **Fields:**
-| Field                                  | Type           | Description                                                                                       |
-| -------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
-| `id.domain.domain`                     | String         | Domain name.                                                                                      |
-| `id.iceberg_location.iceberg_location` | String         | Unique internal identifier for Iceberg table (`"_" + 32` lowercase hex MD5 of registration path). |
-| `id.schema_table.schema_table`         | String         | Lowercase Iceberg table name within the domain.                                                   |
-| `four_by_four.four_by_four`            | String         | FXF public dataset ID, lowercase format `xxxx-xxxx`.                                              |
-| `created_at`                           | DateTime (UTC) | Record creation time (ISO-8601 UTC).                                                              |
-| `updated_at`                           | DateTime (UTC) | Last modification time (ISO-8601 UTC).                                                            |
+| Field                | Type           | Description                                                      |
+| -------------------- | -------------- | ---------------------------------------------------------------- |
+| `id.domain.domain`   | String         | Domain name.                                                     |
+| `id.icebergLocation` | String         | Internal dataset identifier, derived from the registration path. |
+| `id.schemaTable`     | String         | Lowercase Iceberg table name within the domain.                  |
+| `fourByFour`         | String         | Globally unique public dataset identifier, format `xxxx-xxxx`.   |
+| `createdAt`          | DateTime (UTC) | Record creation time (ISO-8601 UTC).                             |
+| `updatedAt`          | DateTime (UTC) | Last modification time (ISO-8601 UTC).                           |
 **Constraints:**
-* `(domain, schema_table)` is unique.
-* `(domain, four_by_four)` is unique.
-* Each inventory points to exactly one Iceberg location.
+* `(domain, schemaTable)` is unique.
+* `(domain, fourByFour)` is unique.
+* Each Inventory points to exactly one Iceberg asset.
+**Key Concepts:**
+* An **Iceberg asset** is defined as the pair `(icebergLocation, schemaTable)`.
+* The same Iceberg asset may appear in multiple domains, but each Inventory must have its own `fourByFour`.
+* An Inventory can be retrieved either by:
+  * its `fourByFour`, or
+  * the composite key `(domain, icebergLocation, schemaTable)`.
 ---
 ### **1.3 Registration**
-A **Registration** record maps a canonical dataset path to its Iceberg location, with optional metadata.
+A **Registration** record maps a canonical dataset `path` to its `icebergLocation`.
 **Purpose:**
-* Provides an authoritative record of how a dataset’s logical identity (path) maps to its physical Iceberg table.
-* Can store metadata for organizational, operational, or analytical purposes.
+* Provides the authoritative record of how a dataset’s logical identity maps to its storage table.
+* Supports optional metadata for organizational and operational context.
 **Fields:**
-| Field                               | Type                 | Description                                                          |
-| ----------------------------------- | -------------------- | -------------------------------------------------------------------- |
-| `id.path.path`                      | String               | Canonical dataset path (logical identifier).                         |
-| `iceberg_location.iceberg_location` | String               | `"_" + 32` lowercase hex MD5 of `path`.                              |
-| `metadata`                          | Map\<String, String> | Arbitrary key-value pairs. May include `"domain"`, but not required. |
-| `created_at`                        | DateTime (UTC)       | Record creation time (ISO-8601 UTC).                                 |
-| `updated_at`                        | DateTime (UTC)       | Last modification time (ISO-8601 UTC).                               |
+| Field             | Type                | Description                                |
+| ----------------- | ------------------- | ------------------------------------------ |
+| `id.path`         | String              | Canonical dataset path.                    |
+| `icebergLocation` | String              | Internal identifier, MD5 of path.          |
+| `metadata`        | Map\<String,String> | Optional metadata, may include `"domain"`. |
+| `createdAt`       | DateTime (UTC)      | Record creation time (ISO-8601 UTC).       |
+| `updatedAt`       | DateTime (UTC)      | Last modification time (ISO-8601 UTC).     |
 **Constraints:**
-* `path` → `iceberg_location` is deterministic.
-* Multiple paths cannot map to the same iceberg\_location unless explicitly configured.
+* `path → icebergLocation` is deterministic.
+* Multiple paths cannot map to the same `icebergLocation` unless explicitly configured.
 ---
 ### **1.4 Iceberg Location**
-An **Iceberg Location** is an internal storage identifier for a dataset’s table.
+An **Iceberg Location** is the deterministic internal identifier for a dataset’s Iceberg table.
 **Fields:**
-| Field              | Type   | Description                                          |
-| ------------------ | ------ | ---------------------------------------------------- |
-| `iceberg_location` | String | `"_" + 32` lowercase hex MD5 of a registration path. |
+| Field             | Type   | Description                                          |
+| ----------------- | ------ | ---------------------------------------------------- |
+| `icebergLocation` | String | `"_" + 32` lowercase hex MD5 of a Registration path. |
 **Key Concepts:**
-* Derived from the registration path; deterministic and reproducible.
-* Functions as a **link key** between Inventory and Registration.
-* Identifies an Iceberg table across the system.
+* Derived from `path`.
+* Functions as a join key between **Inventory** and **Registration**.
+* Identifies the physical Iceberg table across the system.
 ---
 ### **1.5 Four-by-Four (FXF)**
-A **Four-by-Four** is a public dataset identifier used in APIs, exports, and portals.
+A **Four-by-Four** is the globally unique public identifier for a dataset.
 **Fields:**
-| Field          | Type   | Description                                             |
-| -------------- | ------ | ------------------------------------------------------- |
-| `four_by_four` | String | Lowercase alphanumeric with a dash, format `xxxx-xxxx`. |
+| Field        | Type   | Description                                             |
+| ------------ | ------ | ------------------------------------------------------- |
+| `fourByFour` | String | Lowercase alphanumeric with a dash, format `xxxx-xxxx`. |
 **Key Concepts:**
-* Unique within a single domain.
-* Does not expose internal storage details.
-* Is the most common **entry point** into the system from external requests.
+* Always globally unique.
+* If an Iceberg asset exists in multiple domains, each Inventory entry for it gets a different `fourByFour`.
+* `fourByFour` is the most common entry point into the system for external requests.
 ---
 ### **1.6 GitConfig**
-A **GitConfig** represents a snapshot of the version-control state of the software at a given time.
+A **GitConfig** is what the `/version` endpoint returns. It describes the build and source control state of the system.
 **Purpose:**
-* Enables traceability and reproducibility.
-* Associates build and deployment states with dataset processing events.
-**Fields:**
-| Field                      | Type             |
-| -------------------------- | ---------------- |
-| `branch`                   | String           |
-| `build.host`               | String           |
-| `build.time`               | DateTime (UTC)   |
-| `build.user.name`          | String           |
-| `build.user.email`         | String           |
-| `version`                  | String           |
-| `build.number`             | String / Integer |
-| `closest.tag.name`         | String           |
-| `closest.tag.commit_count` | Integer          |
-| `commit.author_time`       | DateTime (UTC)   |
-| `commit.committer_time`    | DateTime (UTC)   |
-| `commit.id.full`           | String           |
-| `commit.id.abbrev`         | String           |
-| `commit.describe`          | String           |
-| `commit.message.full`      | String           |
-| `commit.message.short`     | String           |
-| `commit.user.name`         | String           |
-| `commit.user.email`        | String           |
-| `dirty`                    | Boolean          |
-| `local_branch.ahead`       | Integer          |
-| `local_branch.behind`      | Integer          |
-| `remote_origin`            | String           |
-| `tag`                      | String           |
-| `tags`                     | List\<String>    |
-| `total_commits`            | Integer          |
+* Provides reproducibility and traceability.
+* Associates a running service instance with the repository commit it was built from.
+**Key Concepts:**
+* Not part of the data model relationships (Registration/Inventory).
+* Useful for debugging and auditing builds, deployments, and dataset processing.
 ---
 ## **2. Field Index Across Entities**
-This table shows **shared fields** that allow navigation between entities.
-| Field                      | Appears In                         | Navigation Role                                                         |
-| -------------------------- | ---------------------------------- | ----------------------------------------------------------------------- |
-| `iceberg_location`         | Inventory, Registration            | **Primary join key** linking public datasets to internal registrations. |
-| `domain`                   | Inventory, Registration (metadata) | Scope boundary for datasets.                                            |
-| `four_by_four`             | Inventory                          | Public dataset key.                                                     |
-| `path`                     | Registration                       | Canonical logical key for computing iceberg\_location.                  |
-| `created_at`, `updated_at` | Inventory, Registration            | Temporal link for historical analysis or GitConfig correlation.         |
+| Field                    | Appears In              | Navigation Role                                                        |
+| ------------------------ | ----------------------- | ---------------------------------------------------------------------- |
+| `icebergLocation`        | Inventory, Registration | Primary join key linking public datasets (Inventory) to registrations. |
+| `domain`                 | Inventory, Registration | Scope boundary for datasets.                                           |
+| `fourByFour`             | Inventory               | Public dataset identifier.                                             |
+| `path`                   | Registration            | Canonical logical key for computing `icebergLocation`.                 |
+| `createdAt`, `updatedAt` | Inventory, Registration | Support historical analysis and build correlations.                    |
 ---
 ## **3. Navigation Matrix**
-| From → To                    | Direct Linking Field(s)                                    |
-| ---------------------------- | ---------------------------------------------------------- |
-| Inventory → Registration     | `iceberg_location`                                         |
-| Registration → Inventory     | `iceberg_location`                                         |
-| Inventory → Domain           | `domain`                                                   |
-| Registration → Domain        | `metadata["domain"]` or via `iceberg_location` → Inventory |
-| Inventory → FXF              | `four_by_four`                                             |
-| FXF → Inventory              | `four_by_four` + `domain`                                  |
-| Inventory → Iceberg Location | `iceberg_location`                                         |
-| Iceberg Location → Inventory | `iceberg_location`                                         |
-| Registration → Path          | `path`                                                     |
-| Path → Registration          | `path`                                                     |
+| From → To                    | Direct Linking Field(s)                                   |
+| ---------------------------- | --------------------------------------------------------- |
+| Inventory → Registration     | `icebergLocation`                                         |
+| Registration → Inventory     | `icebergLocation`                                         |
+| Inventory → Domain           | `domain`                                                  |
+| Registration → Domain        | `metadata["domain"]` or via `icebergLocation` → Inventory |
+| Inventory → FXF              | `fourByFour`                                              |
+| FXF → Inventory              | `fourByFour` (globally unique)                            |
+| Inventory → Iceberg Location | `icebergLocation`                                         |
+| Iceberg Location → Inventory | `icebergLocation`                                         |
+| Registration → Path          | `path`                                                    |
+| Path → Registration          | `path`                                                    |
 ---
 ## **4. Traversal Principles**
-* **Iceberg Location is the central bridge**: almost all cross-entity relationships pass through it.
-* **Domain scoping is strict**: FXF collisions across domains are valid; they are only unique within a domain.
-* **Path determinism**: given a path, you can compute the iceberg\_location without looking it up.
-* **FXF is entry for public queries**, Path is entry for internal workflows.
-* **GitConfig links are temporal**: the only way to associate it with datasets is via matching timestamps to `created_at` / `updated_at`.
+* **Iceberg Location is the bridge**: all entity relationships pass through it.
+* **Four-by-Four is globally unique**: the public-facing handle for Inventories.
+* **Domain scoping disambiguates**: same Iceberg asset in different domains → different `fourByFour`.
+* **Path determinism**: given a `path`, its `icebergLocation` can always be computed.
+* **GitConfig is temporal**: links only by build time, not through entity keys.
 ---
 ## **5. Conceptual Relationships**
-1. **Inventory** maps `(domain, FXF)` ↔ `iceberg_location`.
-2. **Registration** maps `(path)` ↔ `iceberg_location` (+ metadata).
-3. **Iceberg Location** is the intersection point of public (Inventory) and internal (Registration) records.
-4. **FXF** is always resolved via Inventory.
-5. **Domain** can be resolved directly from Inventory or indirectly from Registration metadata.
-6. **GitConfig** is correlated by time, not by explicit key.
+1. **Registration** maps `(path)` → `icebergLocation`.
+2. **Inventory** maps `(domain, icebergLocation, schemaTable)` → `fourByFour`.
+3. **Iceberg Asset** = `(icebergLocation, schemaTable)`.
+   * May exist across domains.
+   * Each Inventory assigns its own `fourByFour`.
+4. **Iceberg Location** is the shared bridge between Registrations and Inventories.
+5. **Four-by-Four** is always resolved via Inventory.
+6. **Domain** scopes Inventories, but FXF uniqueness is global.
+7. **GitConfig** describes builds, independent of dataset identifiers.
         "#.into()),
         protocol_version: LATEST_PROTOCOL_VERSION.to_string(),
     };

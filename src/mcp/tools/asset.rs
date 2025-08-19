@@ -3,19 +3,16 @@ use crate::api::store::asset::dici::{CoreArgs, DiciAsset, IcebergArgs};
 use crate::api::store::asset::iceberg::IcebergAsset;
 use crate::api::store::asset::traits::schema_source::SchemaSource;
 use crate::mcp::handler::DiciServerHandlerState;
-use crate::mcp::tools::{into_call_err, json_as_text, DiciCallableTool};
-use rust_mcp_sdk::macros::{mcp_tool, JsonSchema};
-use rust_mcp_sdk::schema::schema_utils::CallToolError;
+use crate::mcp::tools::{DiciCallableTool, into_call_err, json_as_text};
+use rust_mcp_sdk::macros::{JsonSchema, mcp_tool};
 use rust_mcp_sdk::schema::CallToolResult;
+use rust_mcp_sdk::schema::schema_utils::CallToolError;
 use serde::{Deserialize, Serialize};
 #[mcp_tool(
     name = "asset_get_schema_by_fxf",
-    title = "Get Dataset Schema by FXF",
-    description = "Given a public Four-by-Four (FXF) dataset identifier (format `xxxx-xxxx`), \
-retrieves the table schema for the dataset within its domain. \
-Input: `fxf` (string, FXF). \
-Output: JSON array of schema fields with name, type, and nullability. \
-Concepts: FXF uniquely identifies an Inventory; schema is resolved via Iceberg location mapping.",
+    title = "Get Asset Schema by FXF",
+    description = "Input: { fxf } – FXF identifier of the dataset. \
+                   Output: The schema of the dataset (list of fields with names and types).",
     idempotent_hint = true,
     destructive_hint = false,
     open_world_hint = false,
@@ -42,11 +39,9 @@ impl DiciCallableTool for AssetGetSchemaByFxf {
 }
 #[mcp_tool(
     name = "asset_get_schema_by_iceberg",
-    title = "Get Dataset Schema by Iceberg Location",
-    description = "Retrieves the schema for a dataset directly from its Iceberg table reference. \
-Input: `location` (string, Iceberg location `_` + 32 lowercase hex), `schema_table` (string, lowercase table name). \
-Output: JSON array of schema fields with name, type, and nullability. \
-Concepts: Iceberg location uniquely identifies a Registration and Inventory mapping; schema_table specifies the table within that location.",
+    title = "Get Asset Schema by Iceberg Location",
+    description = "Input: { location, schema_table } – Iceberg location and schemaTable of the dataset. \
+                   Output: The schema of the dataset (list of fields with names and types).",
     idempotent_hint = true,
     destructive_hint = false,
     open_world_hint = false,

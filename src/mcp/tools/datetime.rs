@@ -7,11 +7,9 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 #[mcp_tool(
     name = "get_date_time",
-    title = "Get Current Date/Time (UTC)",
-    description = "Returns the current UTC date and time. \
-Input: none. \
-Output: ISO-8601 UTC timestamp string. \
-Concepts: Useful for timestamp comparisons against Inventory.updated_at, Registration.updated_at, or GitConfig.commit/build times.",
+    title = "Get Current Date and Time",
+    description = "Input: none. \
+                   Output: The current UTC datetime (ISO-8601 string).",
     idempotent_hint = true,
     destructive_hint = false,
     open_world_hint = false,

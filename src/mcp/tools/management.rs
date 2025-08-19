@@ -11,14 +11,8 @@ use std::collections::HashMap;
 #[mcp_tool(
     name = "inventory_get_by_fxf",
     title = "Get Inventory by FXF",
-    description = "Looks up a single Inventory record by its FXF identifier (format `xxxx-xxxx`). \
-Input: `fxf` (string). \
-Output: JSON object representing the Inventory, including domain, Iceberg location, schema table, FXF, created/updated timestamps. \
-Concepts: Inventory links a public FXF to an Iceberg location within a domain.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    description = "Input: { fxf } – fourByFour ID. \
+                   Output: Inventory object."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryGetByFxf {
@@ -40,14 +34,8 @@ impl DiciCallableTool for InventoryGetByFxf {
 #[mcp_tool(
     name = "inventory_list_by_iceberg_location",
     title = "List Inventories by Iceberg Location",
-    description = "Finds all Inventory records referencing the same Iceberg location. \
-Input: `iceberg_location` (string, `_` + 32 lowercase hex). \
-Output: JSON array of Inventory objects. \
-Concepts: Used to discover all public datasets backed by the same physical Iceberg table.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    description = "Input: { iceberg_location } – internal Iceberg identifier. \
+                   Output: List of Inventory objects."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryListByIcebergLocation {
@@ -69,14 +57,8 @@ impl DiciCallableTool for InventoryListByIcebergLocation {
 #[mcp_tool(
     name = "inventory_list_by_domain",
     title = "List Inventories by Domain",
-    description = "Lists all Inventory records belonging to a specific domain. \
-Input: `domain` (string). \
-Output: JSON array of Inventory objects. \
-Concepts: Domain is the top-level scope for datasets; this lists all public datasets in that tenant.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    description = "Input: { domain } – domain name. \
+                   Output: List of Inventory objects."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct InventoryListByDomain {
@@ -96,16 +78,38 @@ impl DiciCallableTool for InventoryListByDomain {
     }
 }
 #[mcp_tool(
+    name = "inventory_list_updated_since",
+    title = "List Inventories Updated Since",
+    description = "Input: { since } – ISO-8601 datetime. \
+                   Output: List of Inventory objects."
+)]
+#[derive(Debug, Deserialize, Serialize, JsonSchema)]
+pub struct InventoryListUpdatedSince {
+    pub since: String,
+}
+impl DiciCallableTool for InventoryListUpdatedSince {
+    async fn call_tool(
+        &self,
+        state: &DiciServerHandlerState,
+    ) -> Result<CallToolResult, CallToolError> {
+        use chrono::{DateTime, Utc};
+        let client = &state.management_client;
+        let since_dt: DateTime<Utc> = self
+            .since
+            .parse()
+            .map_err(|e| into_call_err(format!("Invalid datetime format for 'since': {}", e)))?;
+        let list: Vec<Inventory> = client
+            .fetch_inventories_updated_since(since_dt)
+            .await
+            .map_err(into_call_err)?;
+        json_as_text(&list)
+    }
+}
+#[mcp_tool(
     name = "registration_list_by_path",
     title = "List Registrations by Path",
-    description = "Lists all Registration records with a given canonical path. \
-Input: `path` (string). \
-Output: JSON array of Registration objects, each with path, Iceberg location, metadata, created/updated timestamps. \
-Concepts: Path deterministically maps to Iceberg location; may have multiple metadata variants.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    description = "Input: { path } – canonical dataset path. \
+                   Output: List of Registration objects."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationListByPath {
@@ -127,14 +131,8 @@ impl DiciCallableTool for RegistrationListByPath {
 #[mcp_tool(
     name = "registration_get_by_iceberg_location",
     title = "Get Registration by Iceberg Location",
-    description = "Retrieves the Registration record for a given Iceberg location. \
-Input: `iceberg_location` (string, `_` + 32 lowercase hex). \
-Output: JSON object with path, Iceberg location, metadata, timestamps. \
-Concepts: Iceberg location is the bridge between Registration and Inventory.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    description = "Input: { iceberg_location } – internal Iceberg identifier. \
+                   Output: Registration object."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationGetByIcebergLocation {
@@ -156,14 +154,8 @@ impl DiciCallableTool for RegistrationGetByIcebergLocation {
 #[mcp_tool(
     name = "registration_query_by_path_and_metadata",
     title = "Query Registrations by Path and Metadata",
-    description = "Searches for Registration records with a specific path and metadata filters. \
-Input: `path` (string), `metadata` (map<string,string>, optional). \
-Output: JSON array of Registration objects. \
-Concepts: Enables refined search within Registrations, especially to filter by domain or other metadata.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    description = "Input: { path, metadata } – dataset path and metadata filters. \
+                   Output: List of Registration objects."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct RegistrationQueryByPathAndMetadata {
@@ -186,15 +178,9 @@ impl DiciCallableTool for RegistrationQueryByPathAndMetadata {
 }
 #[mcp_tool(
     name = "version_get",
-    title = "Get Git Configuration and Build Metadata",
-    description = "Retrieves the current Git configuration, commit, and build metadata. \
-Input: none. \
-Output: JSON object with branch, build info, commit details, tags, remote origin, and total commits. \
-Concepts: GitConfig provides temporal context to dataset changes and system state.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
+    title = "Get Build Version",
+    description = "Input: none. \
+                   Output: GitConfig object."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct VersionGet {}
@@ -206,39 +192,5 @@ impl DiciCallableTool for VersionGet {
         let client = &state.management_client;
         let version_info: GitConfig = client.fetch_version().await.map_err(into_call_err)?;
         json_as_text(&version_info)
-    }
-}
-#[mcp_tool(
-    name = "inventory_list_updated_since",
-    title = "List Inventories Updated Since Timestamp",
-    description = "Lists all Inventory records updated on or after the given timestamp. \
-Input: `since` (ISO-8601 UTC string). \
-Output: JSON array of Inventory objects. \
-Concepts: Used to find datasets changed within a time window; can correlate with GitConfig or external events.",
-    idempotent_hint = true,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = true
-)]
-#[derive(Debug, Deserialize, Serialize, JsonSchema)]
-pub struct InventoryListUpdatedSince {
-    pub since: String,
-}
-impl DiciCallableTool for InventoryListUpdatedSince {
-    async fn call_tool(
-        &self,
-        state: &DiciServerHandlerState,
-    ) -> Result<CallToolResult, CallToolError> {
-        use chrono::{DateTime, Utc};
-        let client = &state.management_client;
-        let since_dt: DateTime<Utc> = self
-            .since
-            .parse()
-            .map_err(|e| into_call_err(format!("Invalid datetime format for 'since': {}", e)))?;
-        let list: Vec<Inventory> = client
-            .fetch_inventories_updated_since(since_dt)
-            .await
-            .map_err(into_call_err)?;
-        json_as_text(&list)
     }
 }

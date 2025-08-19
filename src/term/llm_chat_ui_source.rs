@@ -154,7 +154,7 @@ where
         self.set_status("Canceling current turn…");
     }
     fn new_chat(&mut self) {
-        if self.busy{
+        if self.busy {
             self.abort();
         }
         self.pending.clear();
@@ -163,7 +163,7 @@ where
         self.set_status("Ready (new chat)");
     }
     fn abort(&mut self) {
-        if self.busy && !self.aborting{
+        if self.busy && !self.aborting {
             let _ = self.source.cancel_tx().send(CancelCtl::AbortCurrent);
             self.aborting = true;
         }

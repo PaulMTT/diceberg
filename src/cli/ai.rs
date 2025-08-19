@@ -1,15 +1,13 @@
 use crate::term::duplex::Duplex;
 use crate::term::llm_chat_sink::{CancelCtl, ChatEvent, MistralDuplexSink};
 use crate::term::llm_chat_ui_source::MistralDuplexSourceUi;
-use mistralrs::{
-    IsqType, ModelDType,
-    PagedAttentionMetaBuilder, RequestBuilder, TextModelBuilder,
-};
-use std::sync::Arc;
 use anyhow::Result;
+use mistralrs::{IsqType, ModelDType, PagedAttentionMetaBuilder, RequestBuilder, TextModelBuilder};
+use std::sync::Arc;
 
 #[cfg(feature = "mcp")]
-use mistralrs::{McpServerConfig, McpClientConfig, McpServerSource};
+use mistralrs::{McpClientConfig, McpServerConfig, McpServerSource};
+
 pub async fn handle_ai() -> Result<()> {
     #[cfg(feature = "mcp")]
     let mcp = McpClientConfig {
@@ -29,14 +27,11 @@ pub async fn handle_ai() -> Result<()> {
         max_concurrent_calls: Some(4),
         ..Default::default()
     };
-    let model = TextModelBuilder::new("Qwen/Qwen3-4B")
-        .with_dtype(ModelDType::Auto);
-    
+    let model = TextModelBuilder::new("Qwen/Qwen3-4B").with_dtype(ModelDType::Auto);
     #[cfg(feature = "metal")]
     let model = model.with_isq(IsqType::AFQ8);
     #[cfg(not(feature = "metal"))]
     let model = model.with_isq(IsqType::Q8K);
-
     let model = model.with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?;
     #[cfg(feature = "mcp")]
     let model = model.with_mcp_client(mcp);

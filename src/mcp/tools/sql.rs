@@ -15,16 +15,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 #[mcp_tool(
     name = "asset_execute_sql_by_fxf",
-    title = "Execute SQL Query on Dataset by FXF",
-    description = "Executes a SQL query against a public dataset identified by FXF. \
-Input: `fxf` (string, `xxxx-xxxx`), `sql` (string, must always use table name `this`). \
-Output: JSON array of query results. \
-Concepts: FXF resolves to an Inventory → Iceberg location mapping. All queries must refer only to `this`, \
-which represents the resolved dataset table.",
-    idempotent_hint = false,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = false
+    title = "Execute SQL on Asset by FXF",
+    description = "Input: { fxf, sql } – FXF identifier of the dataset and an SQL query string. \
+                   The SQL must reference the dataset as the table name \"this\". \
+                   Output: Query results as JSON values."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByFxf {
@@ -50,16 +44,10 @@ impl DiciCallableTool for AssetExecuteSqlByFxf {
 }
 #[mcp_tool(
     name = "asset_execute_sql_by_iceberg",
-    title = "Execute SQL Query on Dataset by Iceberg Location",
-    description = "Executes a SQL query directly against an Iceberg table. \
-Input: `location` (string, `_` + 32 lowercase hex), `schema_table` (string), `sql` (string, must always use table name `this`). \
-Output: JSON array of query results. \
-Concepts: Direct access to Iceberg tables bypassing FXF resolution. All queries must refer only to `this`, \
-which represents the bound Iceberg table.",
-    idempotent_hint = false,
-    destructive_hint = false,
-    open_world_hint = false,
-    read_only_hint = false
+    title = "Execute SQL on Asset by Iceberg Location",
+    description = "Input: { location, schema_table, sql } – Iceberg location, schemaTable, and an SQL query string. \
+                   The SQL must reference the dataset as the table name \"this\". \
+                   Output: Query results as JSON values."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByIceberg {
