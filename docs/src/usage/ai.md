@@ -29,6 +29,13 @@ cargo install --path . --features "metal mcp"
 
 ⚠️ Only one backend should be chosen at a time (e.g. don’t enable both `metal` and `cuda`).
 
+### Model
+You can also pre-download the model:
+```shell
+hf download Qwen/Qwen3-4B
+```
+More [documentation here](https://huggingface.co/docs/huggingface_hub/en/guides/cli#hf-download)
+
 ---
 
 ## ✨ Features
