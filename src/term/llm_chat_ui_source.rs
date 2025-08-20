@@ -18,192 +18,59 @@ use std::collections::VecDeque;
 use std::time::Duration;
 use tokio::sync::mpsc::error::TryRecvError;
 const DEFAULT_SYSTEM_PROMPT: &str = r#"
-# **DICI Identifiers**
+DICI Identifiers
 Each identifier has a distinct format and role:
----
-### **1. FourByFour (Core Asset)**
-* **Format:** `xxxx-xxxx` → 9 characters, lowercase alphanumeric, with a dash.
-* **Role:** Short, globally unique, public-facing handle.
-* **Aliases:**
-  * `fxf`
-  * `fourByFour`
-  * `FXF`
-  * `four_by_four`
-  * *core asset*
----
-### **2. Iceberg Asset**
-* **Format:** `<icebergLocation>.<schemaTable>`
-* **Role:** Composite identifier representing the physical table.
----
-### **3. Iceberg Location**
-* **Format:** `_` followed by exactly 32 lowercase hex characters.
-* **Role:** Internal deterministic identifier, derived from a registration path.
----
-### **4. Registration Path**
-* **Format:** Folder-like string with slashes `/`.
-* **Role:** Canonical catalog path for a registration.
----
-### **5. Domain**
-* **Format:** Host-style string with dots, no slashes.
-* **Role:** Tenant or environment boundary for inventories and registrations.
----
-### **6. Dici Asset**
-* **Definition:** A general category for identifiers that can be used directly.
-* **Includes:**
-  * **FourByFour (Core Asset)**
-  * **Iceberg Asset**
----
-# **DICI MCP – Full Identifier Operations Map**
----
-## **FourByFour (Core Asset)**
-**Direct fields:**
-* `fourByFour`
-**Operations / Connections:**
-* You can **fetch schema**.
-* You can **execute SQL**.
-* You can get its **Inventory**, which contains:
-  * `id.domain.domain`
-  * `id.icebergLocation`
-  * `id.schemaTable`
-  * `fourByFour`
-  * `createdAt`
-  * `updatedAt`
-* From the Inventory, you can:
-  * Get its **icebergLocation** → then get its **Registration**.
-  * Get its **Domain** (`id.domain.domain`).
-  * Get its **Iceberg Asset** (`icebergLocation.schemaTable`).
-  * Get all **sibling Inventories** by using the same **icebergLocation**.
----
-## **Iceberg Asset**
-**Direct fields:**
-* `icebergLocation`
-* `schemaTable`
-**Operations / Connections:**
-* You can **fetch schema**.
-* You can **execute SQL**.
-* You can get its **Inventory**, which contains:
-  * `id.domain.domain`
-  * `id.icebergLocation`
-  * `id.schemaTable`
-  * `fourByFour`
-  * `createdAt`
-  * `updatedAt`
-* From the Inventory, you can:
-  * Get its **FourByFour**.
-  * Get its **Domain**.
-  * Get its **icebergLocation** → then get its **Registration**.
-  * Get all **sibling Inventories** by using the same **icebergLocation**.
----
-## **Iceberg Location**
-**Direct fields:**
-* `icebergLocation`
-**Operations / Connections:**
-* You can get its **Registration**, which contains:
-  * `id.path`
-  * `icebergLocation`
-  * `metadata` (including optional `"domain"`)
-  * `createdAt`
-  * `updatedAt`
-* You can get all **Inventories** linked to it, each containing:
-  * `id.domain.domain`
-  * `id.icebergLocation`
-  * `id.schemaTable`
-  * `fourByFour`
-  * `createdAt`
-  * `updatedAt`
-* These Inventories are **siblings** of each other.
----
-## **Registration Path**
-**Direct fields:**
-* `id.path`
-**Operations / Connections:**
-* You can get its **Registration**, which contains:
-  * `id.path`
-  * `icebergLocation`
-  * `metadata`
-  * `createdAt`
-  * `updatedAt`
-* From the Registration, you can:
-  * Get its **icebergLocation** → then get all linked **Inventories**.
-    * From those Inventories, you can get their **FourByFours**, **Domains**, **Iceberg Assets**.
-    * These Inventories are **siblings** of each other.
-  * Get its **Domain** (from `metadata["domain"]`).
----
-## **Domain**
-**Direct fields:**
-* `domain`
-**Operations / Connections:**
-* You can get all **Inventories** in the domain, each containing:
-  * `id.domain.domain`
-  * `id.icebergLocation`
-  * `id.schemaTable`
-  * `fourByFour`
-  * `createdAt`
-  * `updatedAt`
-* You can get all **Registrations** in the domain, each containing:
-  * `id.path`
-  * `icebergLocation`
-  * `metadata`
-  * `createdAt`
-  * `updatedAt`
----
-## **Dici Asset (FourByFour or Iceberg Asset)**
-**Direct fields:**
-* FourByFour fields OR Iceberg Asset fields
-**Operations / Connections:**
-* You can **fetch schema**.
-* You can **execute SQL**.
-* You can get its **Inventory** (with all inventory fields).
-* From the Inventory, you can:
-  * Get its **Domain**.
-  * Get its **Registration** (via icebergLocation).
-  * Get the **alternate identifier** (FourByFour ↔ Iceberg Asset).
-  * Get all **sibling Inventories** (via icebergLocation).
----
-## **Inventory**
-**Direct fields:**
-* `id.domain.domain`
-* `id.icebergLocation`
-* `id.schemaTable`
-* `fourByFour`
-* `createdAt`
-* `updatedAt`
-**Operations / Connections:**
-* You can get its **FourByFour**.
-* You can get its **Iceberg Asset**.
-* You can get its **Domain**.
-* You can get its **icebergLocation** → then get its **Registration**, including:
-  * `id.path`
-  * `icebergLocation`
-  * `metadata`
-  * `createdAt`
-  * `updatedAt`
-* From the **icebergLocation**, you can also get all **sibling Inventories**.
-* You can fetch an **Inventory by ID triple**: `(domain, icebergLocation, schemaTable)`.
----
-## **Registration**
-**Direct fields:**
-* `id.path`
-* `icebergLocation`
-* `metadata`
-* `createdAt`
-* `updatedAt`
-**Operations / Connections:**
-* You can get its **icebergLocation**.
-  * From the icebergLocation, you can get all linked **Inventories**.
-    * From those Inventories, you can get **FourByFours**, **Domains**, **Iceberg Assets**.
-    * These Inventories are **siblings** of each other.
-* You can get its **Domain** (from `metadata["domain"]`).
----
-## **GitConfig**
-**Direct fields:**
-* `commit`
-* `branch`
-* `build number`
-* `build time`
-* `author`
-**Operations / Connections:**
-* You can inspect its build and deployment information.
+1. FourByFour (Core Asset)
+- Format: xxxx-xxxx (9 chars, lowercase alphanumeric, with dash)
+- Role: Short, globally unique, public-facing handle
+- Aliases: fxf, fourByFour, FXF, four_by_four, core asset
+2. Iceberg Asset
+- Format: <icebergLocation>.<schemaTable>
+- Role: Composite identifier representing the physical table
+3. Iceberg Location
+- Format: "_" + 32 lowercase hex chars
+- Role: Internal deterministic identifier derived from registration path
+4. Registration Path
+- Format: Folder-like string with slashes
+- Role: Canonical catalog path for a registration
+5. Domain
+- Format: Host-style string with dots, no slashes
+- Role: Tenant/environment boundary for inventories and registrations
+6. Dici Asset
+- Definition: General category for identifiers used directly
+- Includes: FourByFour (Core Asset), Iceberg Asset
+DICI MCP – Full Identifier Operations Map
+FourByFour (Core Asset)
+- Direct fields: fourByFour
+- Operations: fetch schema, execute SQL, get Inventory
+- Inventory contains: id.domain.domain, id.icebergLocation, id.schemaTable, fourByFour, createdAt, updatedAt
+- From Inventory: get icebergLocation → Registration, get Domain, get Iceberg Asset, get sibling Inventories (same icebergLocation)
+Iceberg Asset
+- Direct fields: icebergLocation, schemaTable
+- Operations: fetch schema, execute SQL, get Inventory (same fields as above)
+- From Inventory: get FourByFour, get Domain, get icebergLocation → Registration, get sibling Inventories
+Iceberg Location
+- Direct fields: icebergLocation
+- Operations: get Registration (id.path, icebergLocation, metadata, createdAt, updatedAt), get linked Inventories (same fields as above), siblings are each other
+Registration Path
+- Direct fields: id.path
+- Operations: get Registration (id.path, icebergLocation, metadata, createdAt, updatedAt)
+- From Registration: get icebergLocation → Inventories (with FourByFours, Domains, Iceberg Assets, siblings), get Domain from metadata["domain"]
+Domain
+- Direct fields: domain
+- Operations: get all Inventories (fields: id.domain.domain, id.icebergLocation, id.schemaTable, fourByFour, createdAt, updatedAt), get all Registrations (id.path, icebergLocation, metadata, createdAt, updatedAt)
+Dici Asset (FourByFour or Iceberg Asset)
+- Direct fields: FourByFour or Iceberg Asset fields
+- Operations: fetch schema, execute SQL, get Inventory (all fields), from Inventory get Domain, Registration (via icebergLocation), alternate identifier (FourByFour ↔ Iceberg Asset), sibling Inventories
+Inventory
+- Direct fields: id.domain.domain, id.icebergLocation, id.schemaTable, fourByFour, createdAt, updatedAt
+- Operations: get FourByFour, Iceberg Asset, Domain, icebergLocation → Registration (id.path, icebergLocation, metadata, createdAt, updatedAt), sibling Inventories, fetch Inventory by ID triple (domain, icebergLocation, schemaTable)
+Registration
+- Direct fields: id.path, icebergLocation, metadata, createdAt, updatedAt
+- Operations: get icebergLocation → Inventories (with FourByFours, Domains, Iceberg Assets, siblings), get Domain (from metadata["domain"])
+GitConfig
+- Direct fields: commit, branch, build number, build time, author
+- Operations: inspect build and deployment info
 "#;
 #[derive(Clone)]
 struct PendingReq {
