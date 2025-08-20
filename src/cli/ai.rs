@@ -31,7 +31,10 @@ pub async fn handle_ai() -> Result<()> {
     let model = model.with_paged_attn(|| PagedAttentionMetaBuilder::default().build())?;
     #[cfg(feature = "mcp")]
     let model = model.with_mcp_client(mcp);
-    let model = model.build().await?;
+    let model = model
+        .with_max_num_seqs(3)
+        .with_prefix_cache_n(Some(5))
+        .build().await?;
     let (source, sink) = Duplex::unbounded::<RequestBuilder, ChatEvent, CancelCtl>();
     let _worker = MistralDuplexSink::new(sink, Arc::new(model)).spawn();
     let mut ui = MistralDuplexSourceUi::new(source);

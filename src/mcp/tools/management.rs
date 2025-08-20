@@ -234,14 +234,14 @@ impl DiciCallableTool for RegistrationQueryByPathAndMetadata {
     }
 }
 #[mcp_tool(
-    name = "get_dici_management_information",
-    title = "Get the deployment information of dici management",
+    name = "get_dici_management_build_information",
+    title = "Get the build information of dici management",
     description = "Input: none. \
                    Output: GitConfig object."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
-pub struct VersionGet {}
-impl DiciCallableTool for VersionGet {
+pub struct GetDiciManagementBuildInformation {}
+impl DiciCallableTool for GetDiciManagementBuildInformation {
     async fn call_tool(
         &self,
         state: &DiciServerHandlerState,
