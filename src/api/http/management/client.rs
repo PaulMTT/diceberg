@@ -1,6 +1,7 @@
 use crate::api::http::management::config::ManagementConfig;
 use crate::api::http::management::model::inventory::Inventory;
 use crate::api::http::management::model::registration::Registration;
+use crate::api::http::management::model::sync::IcebergLocationSync;
 use crate::api::http::management::model::version::GitConfig;
 use anyhow::{Context, Result, anyhow};
 use chrono::{DateTime, Utc};
@@ -189,6 +190,132 @@ impl ManagementClient {
                 .json::<Vec<Inventory>>()
                 .await
                 .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
+    }
+    pub async fn fetch_inventories_by_iceberg_location_and_table(
+        &self,
+        iceberg_location: String,
+        schema_table: String,
+    ) -> Result<Vec<Inventory>> {
+        let response = self
+            .http_client
+            .get(format!(
+                "{}/inventory/iceberg/{}/{}",
+                self.config.address, iceberg_location, schema_table
+            ))
+            .send()
+            .await
+            .context("Request to dici management failed")?;
+        match response.status() {
+            StatusCode::NOT_FOUND => Ok(vec![]),
+            status if status.is_success() => response
+                .json::<Vec<Inventory>>()
+                .await
+                .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
+    }
+    pub async fn fetch_inventory_by_id(
+        &self,
+        domain: String,
+        iceberg_location: String,
+        schema_table: String,
+    ) -> Result<Inventory> {
+        let response = self
+            .http_client
+            .get(format!(
+                "{}/inventory/id/{}/{}/{}",
+                self.config.address, domain, iceberg_location, schema_table
+            ))
+            .send()
+            .await
+            .context("Request to dici management failed")?;
+        match response.status() {
+            StatusCode::NOT_FOUND => Err(anyhow!(
+                "Inventory not found for domain={}, location={}, table={}",
+                domain,
+                iceberg_location,
+                schema_table
+            )),
+            status if status.is_success() => response
+                .json::<Inventory>()
+                .await
+                .context("Deserializing dici management response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
+    }
+    pub async fn sync_table(
+        &self,
+        iceberg_location: String,
+        schema_table: String,
+    ) -> Result<Vec<Inventory>> {
+        let body = serde_json::json!({
+            "icebergLocation": iceberg_location,
+            "schemaTable": schema_table,
+        });
+        let response = self
+            .http_client
+            .post(format!("{}/sync", self.config.address))
+            .json(&body)
+            .send()
+            .await
+            .context("Request to /sync failed")?;
+        match response.status() {
+            StatusCode::NOT_FOUND => Ok(vec![]),
+            status if status.is_success() => response
+                .json::<Vec<Inventory>>()
+                .await
+                .context("Deserializing /sync response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
+    }
+    pub async fn sync_table_domain(
+        &self,
+        domain: String,
+        iceberg_location: String,
+        schema_table: String,
+    ) -> Result<Inventory> {
+        let body = serde_json::json!({
+            "domain": domain,
+            "icebergLocation": iceberg_location,
+            "schemaTable": schema_table,
+        });
+        let response = self
+            .http_client
+            .post(format!("{}/sync/domain", self.config.address))
+            .json(&body)
+            .send()
+            .await
+            .context("Request to /sync/domain failed")?;
+        match response.status() {
+            StatusCode::NOT_FOUND => Err(anyhow!("Inventory not found for domain sync")),
+            status if status.is_success() => response
+                .json::<Inventory>()
+                .await
+                .context("Deserializing /sync/domain response failed"),
+            status => Err(anyhow!("Unexpected status code: {}", status)),
+        }
+    }
+    pub async fn sync_iceberg_location(
+        &self,
+        iceberg_location: String,
+    ) -> Result<IcebergLocationSync> {
+        let response = self
+            .http_client
+            .get(format!(
+                "{}/sync/iceberg/{}",
+                self.config.address, iceberg_location
+            ))
+            .send()
+            .await
+            .context("Request to /sync/iceberg/{location} failed")?;
+        match response.status() {
+            StatusCode::NOT_FOUND => Err(anyhow!("Iceberg location not found")),
+            status if status.is_success() => response
+                .json::<IcebergLocationSync>()
+                .await
+                .context("Deserializing /sync/iceberg response failed"),
             status => Err(anyhow!("Unexpected status code: {}", status)),
         }
     }

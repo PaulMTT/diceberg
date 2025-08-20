@@ -2,9 +2,10 @@ use crate::mcp::handler::DiciServerHandlerState;
 use crate::mcp::tools::asset::{AssetGetSchemaByFxf, AssetGetSchemaByIceberg};
 use crate::mcp::tools::datetime::GetDateTimeTool;
 use crate::mcp::tools::management::{
-    InventoryGetByFxf, InventoryListByDomain, InventoryListByIcebergLocation,
-    InventoryListUpdatedSince, RegistrationGetByIcebergLocation, RegistrationListByPath,
-    RegistrationQueryByPathAndMetadata, VersionGet,
+    InventoryGetByFxf, InventoryGetById, InventoryListByDomain, InventoryListByIcebergLocation,
+    InventoryListByIcebergLocationAndTable, InventoryListUpdatedSince,
+    RegistrationGetByIcebergLocation, RegistrationListByPath, RegistrationQueryByPathAndMetadata,
+    VersionGet,
 };
 use crate::mcp::tools::sql::{AssetExecuteSqlByFxf, AssetExecuteSqlByIceberg};
 use arrow::record_batch::RecordBatch;
@@ -79,6 +80,8 @@ tool_box_with_dispatch!(
         InventoryListByIcebergLocation,
         InventoryListByDomain,
         InventoryListUpdatedSince,
+        InventoryListByIcebergLocationAndTable,
+        InventoryGetById,
         RegistrationGetByIcebergLocation,
         RegistrationListByPath,
         RegistrationQueryByPathAndMetadata,

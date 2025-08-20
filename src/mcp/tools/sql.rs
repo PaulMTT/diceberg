@@ -14,9 +14,9 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 #[mcp_tool(
-    name = "asset_execute_sql_by_fxf",
-    title = "Execute SQL on Asset by FXF",
-    description = "Input: { fxf, sql } – FXF identifier of the dataset and an SQL query string. \
+    name = "execute_sql_against_core_asset",
+    title = "Execute SQL against a core asset",
+    description = "Input: { fxf, sql } – fourByFour of the core asset and a SQL query string. \
                    The SQL must reference the dataset as the table name \"this\". \
                    Output: Query results as JSON values."
 )]
@@ -43,15 +43,15 @@ impl DiciCallableTool for AssetExecuteSqlByFxf {
     }
 }
 #[mcp_tool(
-    name = "asset_execute_sql_by_iceberg",
-    title = "Execute SQL on Asset by Iceberg Location",
-    description = "Input: { location, schema_table, sql } – Iceberg location, schemaTable, and an SQL query string. \
+    name = "execute_sql_against_iceberg_asset",
+    title = "Execute SQL against an iceberg asset",
+    description = "Input: { iceberg_location, schema_table, sql } – icebergLocation and schemaTable of an iceberg asset, and a SQL query string. \
                    The SQL must reference the dataset as the table name \"this\". \
                    Output: Query results as JSON values."
 )]
 #[derive(Debug, Deserialize, Serialize, JsonSchema)]
 pub struct AssetExecuteSqlByIceberg {
-    pub location: String,
+    pub iceberg_location: String,
     pub schema_table: String,
     pub sql: String,
 }
@@ -63,7 +63,7 @@ impl DiciCallableTool for AssetExecuteSqlByIceberg {
         let asset: DiciAsset = IcebergArgs::builder()
             .asset(
                 IcebergAsset::builder()
-                    .location(&self.location)
+                    .location(&self.iceberg_location)
                     .schema_table(&self.schema_table)
                     .build(),
             )

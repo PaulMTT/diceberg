@@ -6,8 +6,8 @@ use rust_mcp_sdk::schema::{CallToolResult, schema_utils::CallToolError};
 use serde::{Deserialize, Serialize};
 use serde_json;
 #[mcp_tool(
-    name = "get_date_time",
-    title = "Get Current Date and Time",
+    name = "get_current_date_time",
+    title = "Get the current datetime",
     description = "Input: none. \
                    Output: The current UTC datetime (ISO-8601 string).",
     idempotent_hint = true,

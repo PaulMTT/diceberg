@@ -9,9 +9,9 @@ use rust_mcp_sdk::schema::CallToolResult;
 use rust_mcp_sdk::schema::schema_utils::CallToolError;
 use serde::{Deserialize, Serialize};
 #[mcp_tool(
-    name = "asset_get_schema_by_fxf",
-    title = "Get Asset Schema by FXF",
-    description = "Input: { fxf } – FXF identifier of the dataset. \
+    name = "get_schema_of_core_asset",
+    title = "Get the schema of a core asset",
+    description = "Input: { fxf } – The fourByFour identifier of a core asset. \
                    Output: The schema of the dataset (list of fields with names and types).",
     idempotent_hint = true,
     destructive_hint = false,
@@ -38,9 +38,9 @@ impl DiciCallableTool for AssetGetSchemaByFxf {
     }
 }
 #[mcp_tool(
-    name = "asset_get_schema_by_iceberg",
-    title = "Get Asset Schema by Iceberg Location",
-    description = "Input: { location, schema_table } – Iceberg location and schemaTable of the dataset. \
+    name = "get_schema_of_iceberg_asset",
+    title = "Get the schema of an iceberg asset",
+    description = "Input: { location, schema_table } – The icebergLocation and schemaTable of an iceberg asset. \
                    Output: The schema of the dataset (list of fields with names and types).",
     idempotent_hint = true,
     destructive_hint = false,

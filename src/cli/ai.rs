@@ -3,11 +3,9 @@ use crate::term::llm_chat_sink::{CancelCtl, ChatEvent, MistralDuplexSink};
 use crate::term::llm_chat_ui_source::MistralDuplexSourceUi;
 use anyhow::Result;
 use mistralrs::{IsqType, ModelDType, PagedAttentionMetaBuilder, RequestBuilder, TextModelBuilder};
-use std::sync::Arc;
-
 #[cfg(feature = "mcp")]
 use mistralrs::{McpClientConfig, McpServerConfig, McpServerSource};
-
+use std::sync::Arc;
 pub async fn handle_ai() -> Result<()> {
     #[cfg(feature = "mcp")]
     let mcp = McpClientConfig {
@@ -23,8 +21,6 @@ pub async fn handle_ai() -> Result<()> {
             ..Default::default()
         }],
         auto_register_tools: true,
-        tool_timeout_secs: Some(30),
-        max_concurrent_calls: Some(4),
         ..Default::default()
     };
     let model = TextModelBuilder::new("Qwen/Qwen3-4B").with_dtype(ModelDType::Auto);
